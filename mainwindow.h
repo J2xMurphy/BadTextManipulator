@@ -14,15 +14,15 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+    QString opened_file;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-signals:
-    void openend(QString);
 
 private slots:
     void on_actionOpen_triggered();
+
+    void on_actionSave_triggered();
 
 private:
     Ui::MainWindow *ui;
