@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     opened_file = "";
     ui->setupUi(this);
+    s_bar = this->findChild<QStatusBar *>("statusbar");
+    s_bar->showMessage("0");
 }
 
 MainWindow::~MainWindow()
@@ -18,9 +20,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     QString str;
     str = QFileDialog::getOpenFileName(this,
-        tr("Open..."), "", tr("Filetypes (*.txt)"));
-
-    std::cout << "open clicked" << std::endl;
+        "Open...", "", "Filetypes (*.txt)");
 
     QFile file(str);
     if (file.open(QIODevice::ReadOnly)!=1){
@@ -32,16 +32,12 @@ void MainWindow::on_actionOpen_triggered()
     QDataStream f_in(&file);
     char n[file.size()];
     f_in.readRawData(n,file.size());
-
-    std::cout << str.toStdString() << ":lol" << std::endl;
-    std::cout << file.size() << ":size" << std::endl;
-
     file.close();
 
     QTextBrowser * t_box = findChild<QTextBrowser *>("textBox");
     t_box->clear();
     t_box->setPlainText(n);
-
+    update_word_count();
 }
 
 
@@ -57,5 +53,24 @@ void MainWindow::on_actionSave_triggered()
 
     QByteArray text = t_box->toPlainText().toLocal8Bit();
     file.write(text);
+}
+
+
+void MainWindow::on_actionSave_As_triggered()
+{
+    opened_file = QFileDialog::getSaveFileName(this,"Save as...","","*.txt");
+    on_actionSave_triggered();
+
+}
+
+void ::MainWindow::update_word_count(){
+    s_bar->showMessage(
+        QString::number(findChild<QTextBrowser *>("textBox")->toPlainText().length())
+                );
+}
+
+void MainWindow::on_textBox_textChanged()
+{
+    update_word_count();
 }
 

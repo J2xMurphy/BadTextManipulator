@@ -15,6 +15,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     QString opened_file;
+    QStatusBar * s_bar;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -23,6 +24,12 @@ private slots:
     void on_actionOpen_triggered();
 
     void on_actionSave_triggered();
+
+    void on_actionSave_As_triggered();
+
+    void update_word_count();
+
+    void on_textBox_textChanged();
 
 private:
     Ui::MainWindow *ui;
