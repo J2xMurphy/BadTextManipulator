@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -9,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     s_bar = this->findChild<QStatusBar *>("statusbar");
     s_bar->showMessage("0");
+    t_box = findChild<QTextBrowser *>("textBox");
 }
 
 MainWindow::~MainWindow()
@@ -34,7 +36,6 @@ void MainWindow::on_actionOpen_triggered()
     f_in.readRawData(n,file.size());
     file.close();
 
-    QTextBrowser * t_box = findChild<QTextBrowser *>("textBox");
     t_box->clear();
     t_box->setPlainText(n);
     update_word_count();
@@ -44,7 +45,6 @@ void MainWindow::on_actionOpen_triggered()
 void MainWindow::on_actionSave_triggered()
 {
     if (opened_file=="")return;
-    QTextBrowser *  t_box = findChild<QTextBrowser *>("textBox");
     QFile file(opened_file);
     if (file.open(QIODevice::WriteOnly)!=1){
         std::cout << "There was an error saving the file." << std::endl;
@@ -72,5 +72,37 @@ void ::MainWindow::update_word_count(){
 void MainWindow::on_textBox_textChanged()
 {
     update_word_count();
+}
+
+
+void MainWindow::on_actionFont_List_triggered()
+{
+    QDialog font_select(this);
+    QFormLayout f_layout(&font_select);
+
+    QFontComboBox * font_scroll = new QFontComboBox;
+    font_scroll->setCurrentFont(t_box->currentFont());
+    f_layout.addRow(new QLabel("Font Type:"),font_scroll);
+
+    QSpinBox * font_spin = new QSpinBox;
+    font_spin->setRange(4,50);
+    font_spin->setValue(t_box->font().pointSize());
+    f_layout.addRow(new QLabel("Font size:"),font_spin);
+
+    QPushButton * accept= new QPushButton("Apply");
+    f_layout.addRow(accept);
+
+    QObject::connect(accept,SIGNAL(clicked()),&font_select,SLOT(accept()));
+
+    font_select.exec();
+
+    QFont q;
+    q.setFamily(font_scroll->currentFont().toString());
+    q.setPointSize(font_spin->value());
+    t_box->setFont(q);
+
+    delete font_scroll;
+    delete font_spin;
+    delete accept;
 }
 
