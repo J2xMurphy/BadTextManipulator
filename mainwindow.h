@@ -16,6 +16,10 @@
 #include <QFontComboBox>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QTextEdit>
+#include <QMessageBox>
+
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,12 +29,15 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     QString opened_file;
+    QString search_term;
     QStatusBar * s_bar;
     QTextBrowser * t_box;
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void setupStatusBar(QStatusBar*);
 
 private slots:
     void on_actionOpen_triggered();
@@ -44,6 +51,21 @@ private slots:
     void on_textBox_textChanged();
 
     void on_actionFont_List_triggered();
+
+    void on_actionSelector_triggered();
+
+    QString get_Selected_Text();
+
+    //TODO Ideas
+    /* Add a Find text feature
+     * Add a replace text feature
+     * Add a get web text feature
+     * Add a new document feature
+     * Add a directory puller, scans directory for compatible files
+     *
+     * */
+
+    void on_actionFind_triggered();
 
 private:
     Ui::MainWindow *ui;

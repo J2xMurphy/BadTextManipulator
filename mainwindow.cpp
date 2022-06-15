@@ -9,13 +9,21 @@ MainWindow::MainWindow(QWidget *parent)
     opened_file = "";
     ui->setupUi(this);
     s_bar = this->findChild<QStatusBar *>("statusbar");
-    s_bar->showMessage("0");
+    setupStatusBar(s_bar);
     t_box = findChild<QTextBrowser *>("textBox");
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setupStatusBar(QStatusBar * stabar){
+    stabar->showMessage("0");
+    QLabel * s_info = new QLabel("Information");
+    s_info->objectName() = "s_info";
+    stabar->addPermanentWidget(s_info);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -63,11 +71,13 @@ void MainWindow::on_actionSave_As_triggered()
 
 }
 
+
 void ::MainWindow::update_word_count(){
     s_bar->showMessage(
         QString::number(findChild<QTextBrowser *>("textBox")->toPlainText().length())
                 );
 }
+
 
 void MainWindow::on_textBox_textChanged()
 {
@@ -104,5 +114,47 @@ void MainWindow::on_actionFont_List_triggered()
     delete font_scroll;
     delete font_spin;
     delete accept;
+}
+
+
+void MainWindow::on_actionSelector_triggered()
+{
+    QDialog show_results(this);
+    QFormLayout f_layout(&show_results);
+
+    f_layout.addWidget(new QLabel(get_Selected_Text()));
+
+    show_results.exec();
+}
+
+QString MainWindow::get_Selected_Text(){
+    return t_box->textCursor().selectedText();
+}
+
+void MainWindow::on_actionFind_triggered()
+{
+    QInputDialog * QI = new QInputDialog;
+    QString lol = QI->getText(this,"Find...","Find text:",QLineEdit::Normal,search_term);
+    QString text;
+    int found_index;
+
+    text = t_box->toPlainText();
+    found_index = text.indexOf(lol,t_box->textCursor().position());
+
+    if (found_index == -1){
+        QMessageBox * QMB = new QMessageBox;
+        QMB->setWindowTitle("Find...");
+        QMB->setText("'"+lol+"' not found.");
+        QMB->exec();
+    }else{
+        QTextCursor QTC = t_box->textCursor();
+        QTC.setPosition(found_index);
+        QTC.setPosition(found_index+(lol.length()), QTextCursor::KeepAnchor);
+        search_term = lol;
+        t_box->setTextCursor(QTC);
+    }
+
+    delete QI;
+
 }
 
