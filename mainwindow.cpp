@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     s_bar = this->findChild<QStatusBar *>("statusbar");
     setupStatusBar(s_bar);
     t_box = findChild<QTextBrowser *>("textBox");
-
+    setWindowTitle("Text Manipulator");
 }
 
 MainWindow::~MainWindow()
@@ -28,22 +28,23 @@ void MainWindow::setupStatusBar(QStatusBar * stabar){
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString str;
-    str = QFileDialog::getOpenFileName(this,
+    QString dir;
+    dir = QFileDialog::getOpenFileName(this,
         "Open...", "", "Filetypes (*.txt)");
 
-    QFile file(str);
+    QFile file(dir);
     if (file.open(QIODevice::ReadOnly)!=1){
-        std::cout << str.toStdString() << " could not be opened." << std::endl;
+        std::cout << dir.toStdString() << " could not be opened." << std::endl;
         return;
     }
 
-    opened_file = str;
+    opened_file = dir;
     QDataStream f_in(&file);
     char n[file.size()];
     f_in.readRawData(n,file.size());
     file.close();
 
+    setWindowTitle(dir);
     t_box->clear();
     t_box->setPlainText(n);
     update_word_count();
@@ -135,26 +136,101 @@ void MainWindow::on_actionFind_triggered()
 {
     QInputDialog * QI = new QInputDialog;
     QString lol = QI->getText(this,"Find...","Find text:",QLineEdit::Normal,search_term);
+
+    word_Search(lol);
+
+    delete QI;
+}
+
+bool MainWindow::word_Search(QString word){
     QString text;
     int found_index;
 
     text = t_box->toPlainText();
-    found_index = text.indexOf(lol,t_box->textCursor().position());
+    found_index = text.indexOf(word,t_box->textCursor().position());
 
     if (found_index == -1){
-        QMessageBox * QMB = new QMessageBox;
-        QMB->setWindowTitle("Find...");
-        QMB->setText("'"+lol+"' not found.");
-        QMB->exec();
+        push_message_box("'"+word+"' not found after cursor.");
+        return false;
     }else{
         QTextCursor QTC = t_box->textCursor();
         QTC.setPosition(found_index);
-        QTC.setPosition(found_index+(lol.length()), QTextCursor::KeepAnchor);
-        search_term = lol;
+        QTC.setPosition(found_index+(word.length()), QTextCursor::KeepAnchor);
+        search_term = word;
         t_box->setTextCursor(QTC);
+        return true;
     }
 
-    delete QI;
+}
+
+void MainWindow::push_message_box(QString message){
+    QMessageBox * QMB = new QMessageBox;
+    QMB->setWindowTitle("Find...");
+    QMB->setText(message);
+    QMB->exec();
+    delete QMB;
+}
+
+void MainWindow::on_actionNew_triggered()
+{
+    t_box->clear();
+    opened_file = "";
+    setWindowTitle("Text Manipulator");
+}
+
+
+void MainWindow::on_actionFrom_Url_triggered()
+{
+
+    QInputDialog * QI = new QInputDialog;
+    QString url = QI->getText(this,"From Url...","Webtext:",QLineEdit::Normal,"");
+    QNetworkAccessManager manager;
+    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
+
+    QEventLoop wait;
+    connect(response, SIGNAL(finished()), &wait, SLOT(quit()));
+    wait.exec();
+
+    QString content = response->readAll();
+    t_box->setPlainText(content);
+    std::cout << content.toStdString() << std::endl;
+
+    manager.deleteLater();
+
+}
+
+void MainWindow::on_actionReplace_triggered()
+{
+
+    QDialog replace_select(this);
+    QFormLayout r_layout(&replace_select);
+
+    QLineEdit * find = new QLineEdit;
+    r_layout.addRow(new QLabel("Find:"),find);
+
+    QLineEdit * replace = new QLineEdit;
+    r_layout.addRow(new QLabel("Replace:"),replace);
+
+    QPushButton * accept= new QPushButton("Accept");
+    r_layout.addRow(accept);
+
+    QObject::connect(accept,SIGNAL(clicked()),&replace_select,SLOT(accept()));
+
+    replace_select.exec();
+
+    if (word_Search(find->text())){
+        int pos = t_box->textCursor().position();
+        t_box->clearFocus();
+        t_box->insertPlainText(replace->text());
+        t_box->textCursor().setPosition(pos);
+        t_box->textCursor().setPosition(pos+4,QTextCursor::KeepAnchor);
+    }else{
+        return;
+    }
+
+    delete find;
+    delete replace;
+    delete accept;
 
 }
 

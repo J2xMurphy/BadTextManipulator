@@ -54,7 +54,7 @@
        <bool>false</bool>
       </property>
       <property name="overwriteMode">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="openLinks">
        <bool>false</bool>
@@ -82,9 +82,11 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
+    <addaction name="actionFrom_Url"/>
    </widget>
    <widget class="QMenu" name="menuTest">
     <property name="title">
@@ -103,6 +105,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionFind"/>
+    <addaction name="actionReplace"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -142,6 +145,21 @@
   <action name="actionFind">
    <property name="text">
     <string>Find...</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New...</string>
+   </property>
+  </action>
+  <action name="actionFrom_Url">
+   <property name="text">
+    <string>From Url...</string>
+   </property>
+  </action>
+  <action name="actionReplace">
+   <property name="text">
+    <string>Replace...</string>
    </property>
   </action>
  </widget>
