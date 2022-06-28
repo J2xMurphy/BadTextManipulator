@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     s_bar = this->findChild<QStatusBar *>("statusbar");
     setupStatusBar(s_bar);
+    setupShortcuts();
     t_box = findChild<QTextBrowser *>("textBox");
     setWindowTitle("Text Manipulator");
 }
@@ -19,11 +20,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+//TODO
+void MainWindow::setupShortcuts(){
+    QShortcut * short_find = new QShortcut(QKeySequence(tr("Ctrl+F", "Edit|Find...")),this);
+    QObject::connect(short_find,SIGNAL(activated()),this,SLOT(on_actionFind_triggered()));
+}
+
 void MainWindow::setupStatusBar(QStatusBar * stabar){
     stabar->showMessage("0");
     QLabel * s_info = new QLabel("Information");
-    s_info->objectName() = "s_info";
+    s_info->setObjectName("s_info");
+
+    QPushButton * search_left = new QPushButton, * search_right = new QPushButton;
+    search_left->setText("<");
+    search_right->setText(">");
+
+    QObject::connect(search_right,SIGNAL(pressed()),this,SLOT(search_next()));
+    QObject::connect(search_left,SIGNAL(pressed()),this,SLOT(search_prev()));
+
+    stabar->addPermanentWidget(search_left);
     stabar->addPermanentWidget(s_info);
+    stabar->addPermanentWidget(search_right);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -142,12 +159,25 @@ void MainWindow::on_actionFind_triggered()
     delete QI;
 }
 
-bool MainWindow::word_Search(QString word){
+bool MainWindow::word_Search(QString word, bool direction){
     QString text;
     int found_index;
 
+    s_bar->findChild<QLabel*>("s_info")->setText(word);
+
     text = t_box->toPlainText();
-    found_index = text.indexOf(word,t_box->textCursor().position());
+    if (direction == true){
+        std::cout << "Looking forward ";
+        found_index = text.indexOf(word,t_box->textCursor().position());
+        std::cout << found_index << " ";
+    }
+    if (direction == false){
+        std::cout << "Looking back ";
+        found_index = text.lastIndexOf(word,t_box->textCursor().position()-word.length()-1);
+        std::cout << found_index << " ";
+    }
+
+    std::cout << direction << std::endl;
 
     if (found_index == -1){
         push_message_box("'"+word+"' not found after cursor.");
@@ -196,7 +226,7 @@ void MainWindow::on_actionFrom_Url_triggered()
     std::cout << content.toStdString() << std::endl;
 
     manager.deleteLater();
-
+    delete QI;
 }
 
 void MainWindow::on_actionReplace_triggered()
@@ -234,3 +264,23 @@ void MainWindow::on_actionReplace_triggered()
 
 }
 
+void MainWindow::set_search_term(QString term){
+    search_term = term;
+    s_bar->findChild<QLabel*>("s_info")->setText(term);
+}
+
+void list_children(QWidget * parent){
+    QList <QWidget*> asd;
+    asd = parent->findChildren<QWidget*>();
+    for (QWidget * d : asd){
+        std::cout << d->objectName().toStdString() << std::endl;
+    }
+}
+
+void MainWindow::search_next(){
+    word_Search(search_term);
+}
+
+void MainWindow::search_prev(){
+    word_Search(search_term,0);
+}
