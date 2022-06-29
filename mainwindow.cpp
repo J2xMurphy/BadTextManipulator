@@ -6,13 +6,16 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    setWindowTitle("Text Manipulator");
     opened_file = "";
+    search_operation = 1;
     ui->setupUi(this);
+    setupShortcuts();
+
     s_bar = this->findChild<QStatusBar *>("statusbar");
     setupStatusBar(s_bar);
-    setupShortcuts();
+
     t_box = findChild<QTextBrowser *>("textBox");
-    setWindowTitle("Text Manipulator");
 }
 
 MainWindow::~MainWindow()
@@ -21,12 +24,27 @@ MainWindow::~MainWindow()
 }
 
 //TODO
-void MainWindow::setupShortcuts(){
+void MainWindow::setupShortcuts()
+{
     QShortcut * short_find = new QShortcut(QKeySequence(tr("Ctrl+F", "Edit|Find...")),this);
     QObject::connect(short_find,SIGNAL(activated()),this,SLOT(on_actionFind_triggered()));
+
+    QShortcut * short_open = new QShortcut(QKeySequence(tr("Ctrl+O", "File|Open...")),this);
+    QObject::connect(short_open,SIGNAL(activated()),this,SLOT(on_actionOpen_triggered()));
+
+    QShortcut * short_replace = new QShortcut(QKeySequence(tr("Ctrl+R", "Edit|Find...")),this);
+    QObject::connect(short_replace,SIGNAL(activated()),this,SLOT(on_actionReplace_triggered()));
+
+    QShortcut * short_new = new QShortcut(QKeySequence(tr("Ctrl+N", "File|New...")),this);
+    QObject::connect(short_new,SIGNAL(activated()),this,SLOT(on_actionNew_triggered()));
+
+//    DISABLED DURING TESTING
+//    QShortcut * short_save = new QShortcut(QKeySequence(tr("Ctrl+S", "Edit|Find...")),this);
+//    QObject::connect(short_save,SIGNAL(activated()),this,SLOT(on_actionFind_triggered()));
 }
 
-void MainWindow::setupStatusBar(QStatusBar * stabar){
+void MainWindow::setupStatusBar(QStatusBar * stabar)
+{
     stabar->showMessage("0");
     QLabel * s_info = new QLabel("Information");
     s_info->setObjectName("s_info");
@@ -34,6 +52,9 @@ void MainWindow::setupStatusBar(QStatusBar * stabar){
     QPushButton * search_left = new QPushButton, * search_right = new QPushButton;
     search_left->setText("<");
     search_right->setText(">");
+
+    search_left->setMaximumWidth(20);
+    search_right->setMaximumWidth(20);
 
     QObject::connect(search_right,SIGNAL(pressed()),this,SLOT(search_next()));
     QObject::connect(search_left,SIGNAL(pressed()),this,SLOT(search_prev()));
@@ -45,22 +66,27 @@ void MainWindow::setupStatusBar(QStatusBar * stabar){
 
 void MainWindow::on_actionOpen_triggered()
 {
+    //OPENS A FILE DIALOG
     QString dir;
     dir = QFileDialog::getOpenFileName(this,
         "Open...", "", "Filetypes (*.txt)");
 
+    //OPENS FILE FROM DIALOG, RETURNS IF ERROR
+    // FUNCTION SHOULD HAVE RELAVANT RETURN STATEMENT
     QFile file(dir);
     if (file.open(QIODevice::ReadOnly)!=1){
         std::cout << dir.toStdString() << " could not be opened." << std::endl;
         return;
     }
 
+    //READS DATA FROM OPENED FILE, THEN CLOSES
     opened_file = dir;
     QDataStream f_in(&file);
     char n[file.size()];
     f_in.readRawData(n,file.size());
     file.close();
 
+    //TITLE BECOMES FILE LOCATION, WORD COUNT UPDATED, AND TEXT APPLIED
     setWindowTitle(dir);
     t_box->clear();
     t_box->setPlainText(n);
@@ -70,27 +96,35 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
+    //STOPS IF NO FILE OPENED
     if (opened_file=="")return;
+
+    //OPENS FILE FROM LAST ACCESSED LOCATION, RETURN IF CANNOT
     QFile file(opened_file);
     if (file.open(QIODevice::WriteOnly)!=1){
         std::cout << "There was an error saving the file." << std::endl;
         return;
     }
 
+    //WRITES TO FILE, THEN CLOSES
     QByteArray text = t_box->toPlainText().toLocal8Bit();
     file.write(text);
+    file.close();
 }
 
 
 void MainWindow::on_actionSave_As_triggered()
 {
+    //OPENS A FILE DIALOG TO SELECT OPENED FILE, THEN DOES NORMAL SAVE
     opened_file = QFileDialog::getSaveFileName(this,"Save as...","","*.txt");
     on_actionSave_triggered();
 
 }
 
 
-void ::MainWindow::update_word_count(){
+void ::MainWindow::update_word_count()
+{
+    //SENDS WORD COUNT TO STATUS BAR
     s_bar->showMessage(
         QString::number(findChild<QTextBrowser *>("textBox")->toPlainText().length())
                 );
@@ -99,72 +133,89 @@ void ::MainWindow::update_word_count(){
 
 void MainWindow::on_textBox_textChanged()
 {
+    // SLOT FOR WHEN TEXT IS EDITED
     update_word_count();
 }
 
 
 void MainWindow::on_actionFont_List_triggered()
 {
+    //INITIATES EMPTY DIALOG BOX
     QDialog font_select(this);
     QFormLayout f_layout(&font_select);
 
+    //CREATES A SCROLLING LIST OF FONTS FOR THE DIALOG BOX
     QFontComboBox * font_scroll = new QFontComboBox;
     font_scroll->setCurrentFont(t_box->currentFont());
     f_layout.addRow(new QLabel("Font Type:"),font_scroll);
 
+    //CREATES AN INT LIST FOR DIALOG BOX
     QSpinBox * font_spin = new QSpinBox;
     font_spin->setRange(4,50);
     font_spin->setValue(t_box->font().pointSize());
     f_layout.addRow(new QLabel("Font size:"),font_spin);
 
+    //BUTTON TO END DIALOG BOX
     QPushButton * accept= new QPushButton("Apply");
     f_layout.addRow(accept);
-
     QObject::connect(accept,SIGNAL(clicked()),&font_select,SLOT(accept()));
 
+    //DISPLAYS DIALOG BOX
     font_select.exec();
 
+    //SETS TEXT BOX'S FONT TO DIALOG BOX'S RESULTS
     QFont q;
     q.setFamily(font_scroll->currentFont().toString());
     q.setPointSize(font_spin->value());
     t_box->setFont(q);
 
+    //CLEANUP
     delete font_scroll;
     delete font_spin;
     delete accept;
 }
 
-
 void MainWindow::on_actionSelector_triggered()
 {
+    //CREATES A DIALOG AND SHOWS SELECTED TEXT IN A BOX, WAS FOR TESTING LIKELY NOW DEPRICATED
     QDialog show_results(this);
     QFormLayout f_layout(&show_results);
-
     f_layout.addWidget(new QLabel(get_Selected_Text()));
 
     show_results.exec();
 }
 
-QString MainWindow::get_Selected_Text(){
+QString MainWindow::get_Selected_Text()
+{
+    //RETURNS TEXT SELECTED IN TEXT BOX
     return t_box->textCursor().selectedText();
 }
 
 void MainWindow::on_actionFind_triggered()
 {
+    //CREATE INPUT DIALOG FOR A STRING, AND SETS SEARCH DIRECTION TO RIGHT
     QInputDialog * QI = new QInputDialog;
     QString lol = QI->getText(this,"Find...","Find text:",QLineEdit::Normal,search_term);
+    search_operation = 1;
 
+    //EXECUTES SEARCH
     word_Search(lol);
 
+    //CLEANUP
     delete QI;
 }
 
-bool MainWindow::word_Search(QString word, bool direction){
+bool MainWindow::word_Search(QString word, bool direction)
+{
+    //INIT VARIABLES
     QString text;
     int found_index;
 
+    //SAVES SEARCH TERN AND SHOWS IT IN STATUS BAR
+    search_term = word;
     s_bar->findChild<QLabel*>("s_info")->setText(word);
 
+    //SEARCHES LEFT OR RIGHT DEPENDING ON ARG2
     text = t_box->toPlainText();
     if (direction == true){
         std::cout << "Looking forward ";
@@ -179,30 +230,38 @@ bool MainWindow::word_Search(QString word, bool direction){
 
     std::cout << direction << std::endl;
 
+    //HIGHLIGHTS TEXT BASED ON WHERE IT WAS FOUND AND GIVEN WORD LENGTH, ERRORS OTHERWISE
     if (found_index == -1){
-        push_message_box("'"+word+"' not found after cursor.");
+        if (direction == 1)
+            push_message_box("'"+word+"' not found after cursor.","Find...");
+        if (direction == 0)
+            push_message_box("'"+word+"' not found before cursor.","Find...");
         return false;
     }else{
         QTextCursor QTC = t_box->textCursor();
         QTC.setPosition(found_index);
         QTC.setPosition(found_index+(word.length()), QTextCursor::KeepAnchor);
-        search_term = word;
         t_box->setTextCursor(QTC);
         return true;
     }
 
 }
 
-void MainWindow::push_message_box(QString message){
+void MainWindow::push_message_box(QString message,QString title)
+{
+    //CREATES A MESSAGE BOX WITH GIVEN MESSAGE AND TITLE
     QMessageBox * QMB = new QMessageBox;
-    QMB->setWindowTitle("Find...");
+    QMB->setWindowTitle(title);
     QMB->setText(message);
     QMB->exec();
+
+    //CLEANUP
     delete QMB;
 }
 
 void MainWindow::on_actionNew_triggered()
 {
+    //CLEARS THE CURRENT FILE, RESETS OPENED FILE AND TITLE.
     t_box->clear();
     opened_file = "";
     setWindowTitle("Text Manipulator");
@@ -211,65 +270,89 @@ void MainWindow::on_actionNew_triggered()
 
 void MainWindow::on_actionFrom_Url_triggered()
 {
-
+    // CREATES AN INPUT DIALOG FOR A WEBSITE
     QInputDialog * QI = new QInputDialog;
     QString url = QI->getText(this,"From Url...","Webtext:",QLineEdit::Normal,"");
+
+    // CREATES A WAITING DOWNLOADER WITH URL
     QNetworkAccessManager manager;
     QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
 
+    //LOOP/LOCK TO WAIT FOR RESULTS FROM DOWNLOADER
     QEventLoop wait;
     connect(response, SIGNAL(finished()), &wait, SLOT(quit()));
     wait.exec();
 
+    //GETS TEXT FROM PULLED DATA, AND SETS IT TO TEXT BOX
     QString content = response->readAll();
     t_box->setPlainText(content);
-    std::cout << content.toStdString() << std::endl;
+    //std::cout << content.toStdString() << std::endl;
 
+    //CLEANUP
     manager.deleteLater();
     delete QI;
 }
 
 void MainWindow::on_actionReplace_triggered()
 {
-
+    //CREATES INPUT DIALOG FOR REPLACE FUNCTION
     QDialog replace_select(this);
     QFormLayout r_layout(&replace_select);
 
+    //CREATES FIND INPUT FOR REPLACE FUNCTION
     QLineEdit * find = new QLineEdit;
     r_layout.addRow(new QLabel("Find:"),find);
 
+    //CREATES WORD TO REPLACE INPUT FOR REPLACE FUNCTION
     QLineEdit * replace = new QLineEdit;
     r_layout.addRow(new QLabel("Replace:"),replace);
 
+    //CREATES ENDING BUTTON FOR REPLACE FUNCTION
     QPushButton * accept= new QPushButton("Accept");
     r_layout.addRow(accept);
-
     QObject::connect(accept,SIGNAL(clicked()),&replace_select,SLOT(accept()));
 
+    //SHOWS INPUT DIALOG, AND REPLACES WITH GIVEN INPUTS
     replace_select.exec();
+    do_replace(find->text(),replace->text());
 
-    if (word_Search(find->text())){
-        int pos = t_box->textCursor().position();
-        t_box->clearFocus();
-        t_box->insertPlainText(replace->text());
-        t_box->textCursor().setPosition(pos);
-        t_box->textCursor().setPosition(pos+4,QTextCursor::KeepAnchor);
-    }else{
-        return;
-    }
-
+    //CLEANUP
     delete find;
     delete replace;
     delete accept;
 
 }
 
-void MainWindow::set_search_term(QString term){
+void MainWindow::do_replace(QString find, QString replace)
+{
+    //WORD SEARCH HIGHLIGHTS THE WORD, THEN CLEARS THE HIGHLIGHED WORDS, INSERTS REPLACE TEXT, HIGHLIGHTS NEW TEXT
+    if (word_Search(find)){
+        int pos = t_box->textCursor().position();
+        t_box->clearFocus();
+        t_box->insertPlainText(replace);
+
+        //SETS REPLACE CURSOR TO BEGINNING OF REMOVED WORD, THEN TO END OF NEW WORD
+        QTextCursor QTC = t_box->textCursor();
+        QTC.setPosition(pos-find.length());
+        QTC.setPosition(pos-find.length()+replace.length(),QTextCursor::KeepAnchor);
+        t_box->setTextCursor(QTC);
+    }else{
+        //INCASE OF ERROR
+        return;
+    }
+}
+
+void MainWindow::set_search_term(QString term)
+{
+    //UNUSED
+    //SAVES SEARCH TERM AND SENDS IT TO STATUS BAR
     search_term = term;
     s_bar->findChild<QLabel*>("s_info")->setText(term);
 }
 
-void list_children(QWidget * parent){
+void list_children(QWidget * parent)
+{
+    //DEBUG FOR GETTING LIST OF CHILDREN
     QList <QWidget*> asd;
     asd = parent->findChildren<QWidget*>();
     for (QWidget * d : asd){
@@ -277,10 +360,12 @@ void list_children(QWidget * parent){
     }
 }
 
-void MainWindow::search_next(){
+void MainWindow::search_next()
+{
     word_Search(search_term);
 }
 
-void MainWindow::search_prev(){
+void MainWindow::search_prev()
+{
     word_Search(search_term,0);
 }
