@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
 
@@ -10,12 +10,12 @@ MainWindow::MainWindow(QWidget *parent)
     opened_file = "";
     search_operation = 1;
     ui->setupUi(this);
-    setupShortcuts();
 
     s_bar = this->findChild<QStatusBar *>("statusbar");
     setupStatusBar(s_bar);
 
     t_box = findChild<QTextBrowser *>("textBox");
+    setupShortcuts();
 }
 
 MainWindow::~MainWindow()
@@ -38,6 +38,13 @@ void MainWindow::setupShortcuts()
     QShortcut * short_new = new QShortcut(QKeySequence(tr("Ctrl+N", "File|New...")),this);
     QObject::connect(short_new,SIGNAL(activated()),this,SLOT(on_actionNew_triggered()));
 
+    QShortcut * short_undo = new QShortcut(QKeySequence(tr("Ctrl+Z", "Edit|Undo")),this);
+    QObject::connect(short_undo,SIGNAL(activated()),this,SLOT(on_actionUndo_triggered()));
+
+    QShortcut * short_redo = new QShortcut(QKeySequence(tr("Ctrl+Y", "Edit|Redo")),this);
+    QObject::connect(short_redo,SIGNAL(activated()),this,SLOT(on_actionRedo_triggered()));
+
+
 //    DISABLED DURING TESTING
 //    QShortcut * short_save = new QShortcut(QKeySequence(tr("Ctrl+S", "Edit|Find...")),this);
 //    QObject::connect(short_save,SIGNAL(activated()),this,SLOT(on_actionFind_triggered()));
@@ -46,7 +53,7 @@ void MainWindow::setupShortcuts()
 void MainWindow::setupStatusBar(QStatusBar * stabar)
 {
     stabar->showMessage("0");
-    QLabel * s_info = new QLabel("Information");
+    QLabel * s_info = new QLabel(NULL_SEARCH_TERM);
     s_info->setObjectName("s_info");
 
     QPushButton * search_left = new QPushButton, * search_right = new QPushButton;
@@ -147,13 +154,13 @@ void MainWindow::on_actionFont_List_triggered()
     //CREATES A SCROLLING LIST OF FONTS FOR THE DIALOG BOX
     QFontComboBox * font_scroll = new QFontComboBox;
     font_scroll->setCurrentFont(t_box->currentFont());
-    f_layout.addRow(new QLabel("Font Type:"),font_scroll);
+    f_layout.addRow(new QLabel(FONT_TYPE_PROMPT),font_scroll);
 
     //CREATES AN INT LIST FOR DIALOG BOX
     QSpinBox * font_spin = new QSpinBox;
     font_spin->setRange(4,50);
     font_spin->setValue(t_box->font().pointSize());
-    f_layout.addRow(new QLabel("Font size:"),font_spin);
+    f_layout.addRow(new QLabel(FONT_TYPE_PROMPT),font_spin);
 
     //BUTTON TO END DIALOG BOX
     QPushButton * accept= new QPushButton("Apply");
@@ -264,7 +271,7 @@ void MainWindow::on_actionNew_triggered()
     //CLEARS THE CURRENT FILE, RESETS OPENED FILE AND TITLE.
     t_box->clear();
     opened_file = "";
-    setWindowTitle("Text Manipulator");
+    setWindowTitle(WINDOW_TITLE);
 }
 
 
@@ -301,11 +308,11 @@ void MainWindow::on_actionReplace_triggered()
 
     //CREATES FIND INPUT FOR REPLACE FUNCTION
     QLineEdit * find = new QLineEdit;
-    r_layout.addRow(new QLabel("Find:"),find);
+    r_layout.addRow(new QLabel(FIND_PROMPT),find);
 
     //CREATES WORD TO REPLACE INPUT FOR REPLACE FUNCTION
     QLineEdit * replace = new QLineEdit;
-    r_layout.addRow(new QLabel("Replace:"),replace);
+    r_layout.addRow(new QLabel(REPLACE_PROMPT),replace);
 
     //CREATES ENDING BUTTON FOR REPLACE FUNCTION
     QPushButton * accept= new QPushButton("Accept");
@@ -369,3 +376,18 @@ void MainWindow::search_prev()
 {
     word_Search(search_term,0);
 }
+
+void MainWindow::on_actionUndo_triggered()
+{
+    std::cout << "Undo triggered" << std::endl;
+    t_box->undo();
+
+}
+
+
+void MainWindow::on_actionRedo_triggered()
+{
+    std::cout << "Redo triggered" << std::endl;
+    t_box->redo();
+}
+

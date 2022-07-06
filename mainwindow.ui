@@ -50,6 +50,9 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
+      <property name="undoRedoEnabled">
+       <bool>true</bool>
+      </property>
       <property name="readOnly">
        <bool>false</bool>
       </property>
@@ -106,6 +109,8 @@
     </property>
     <addaction name="actionFind"/>
     <addaction name="actionReplace"/>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -160,6 +165,16 @@
   <action name="actionReplace">
    <property name="text">
     <string>Replace...</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
    </property>
   </action>
  </widget>

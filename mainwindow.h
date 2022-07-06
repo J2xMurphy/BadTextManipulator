@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <STRINGS.h>
+
 #include <QMainWindow>
 #include <iostream>
 #include <QFile>
@@ -50,6 +52,20 @@ public:
     void setupShortcuts();
 
 private slots:
+    //TODO Ideas
+    /* Add a statusbar button for next and previous find result
+     * Add an undo and redo functions
+     * Setup the rest of the keyboard shortcuts
+     * Add a help file
+     * A tag system is required to make a automatic vaitalbe replacement system
+     * Add a variable system that replaces keywords
+     * Add a directory puller, scans directory for compatible files  // LATER
+     * Add a command based filetype that takes actions based on file
+     * Add a variable based filetype that matches variables to replaced from a list
+     * Add a export feature, that applies variable replacement to a saved file.
+     * Add a find->replace to variable feature
+     * */
+
     void on_actionOpen_triggered();// OPENS A FILE BROWSER TO SELECT A FILE, THEN OPENS IT
 
     void on_actionSave_triggered();// QUICKLY SAVES A FILE TO THE OPENED FILE WITHOUT PROMPT
@@ -74,19 +90,9 @@ private slots:
 
     void search_prev();// REDOES THE PREVIOUS FIND/REPLACE OPERATION ON PREVIOUS INSTANCE
 
-    //TODO Ideas
-    /* Add a statusbar button for next and previous find result
-     * Add an undo and redo functions
-     * Setup the rest of the keyboard shortcuts
-     * Add a help file
-     * A tag system is required to make a automatic vaitalbe replacement system
-     * Add a variable system that replaces keywords
-     * Add a directory puller, scans directory for compatible files  // LATER
-     * Add a command based filetype that takes actions based on file
-     * Add a variable based filetype that matches variables to replaced from a list
-     * Add a export feature, that applies variable replacement to a saved file.
-     * Add a find->replace to variable feature
-     * */
+    void on_actionUndo_triggered();//UNDO TEXT OPERTAION
+
+    void on_actionRedo_triggered();//REDO TEXT OPERATION
 
 private:
     Ui::MainWindow *ui;
