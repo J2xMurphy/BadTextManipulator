@@ -369,16 +369,19 @@ void list_children(QWidget * parent)
 
 void MainWindow::search_next()
 {
+    //BASED ON SAVED INFORMATION, DOES A NORMAL SEARCH
     word_Search(search_term);
 }
 
 void MainWindow::search_prev()
 {
+    //BASED ON SAVED INFORMATION, DOES A REVERSE SEARCH
     word_Search(search_term,0);
 }
 
 void MainWindow::on_actionUndo_triggered()
 {
+    //WHEN THE HOTKEY OR ACTION IS USED, UNDOES
     std::cout << "Undo triggered" << std::endl;
     t_box->undo();
 
@@ -387,7 +390,22 @@ void MainWindow::on_actionUndo_triggered()
 
 void MainWindow::on_actionRedo_triggered()
 {
+    //WHEN THE HOTKEY OR ACTIO IS USED, REDOES
     std::cout << "Redo triggered" << std::endl;
     t_box->redo();
+}
+
+
+void MainWindow::on_actionView_Help_triggered()
+{
+    //THROWS THE HELP TEXT INTO A BASIC MESSAGE BOX
+    push_message_box(HELP_TEXT,"Help");
+}
+
+
+void MainWindow::on_actionAbout_triggered()
+{
+    //THROWS THE ABOUT TEXT INTO A BASIC MESSAGE BOX
+    push_message_box(ABOUT_TEXT,"About");
 }
 

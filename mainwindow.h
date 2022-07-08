@@ -54,7 +54,6 @@ public:
 private slots:
     //TODO Ideas
     /* Add a statusbar button for next and previous find result
-     * Add an undo and redo functions
      * Setup the rest of the keyboard shortcuts
      * Add a help file
      * A tag system is required to make a automatic vaitalbe replacement system
@@ -93,6 +92,10 @@ private slots:
     void on_actionUndo_triggered();//UNDO TEXT OPERTAION
 
     void on_actionRedo_triggered();//REDO TEXT OPERATION
+
+    void on_actionView_Help_triggered();//SHOW HELP DIALOGUE
+
+    void on_actionAbout_triggered();//SHOW ABOUT DIALOGUE
 
 private:
     Ui::MainWindow *ui;
