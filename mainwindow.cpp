@@ -2,8 +2,10 @@
 #include "./ui_mainwindow.h"
 
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(int argc_in, char * argv_in[],QWidget *parent)
     : QMainWindow(parent)
+    , argc(argc_in)
+    , argv(argv_in)
     , ui(new Ui::MainWindow)
 {
     setWindowTitle("Text Manipulator");

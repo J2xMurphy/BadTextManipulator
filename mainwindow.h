@@ -47,9 +47,11 @@ class MainWindow : public QMainWindow
     bool search_operation;// Whether find was used for find or replace operation
     QStatusBar * s_bar;// The status bar at the bottom of the screen
     QTextBrowser * t_box;// The wall of text being edited
+    int argc;//           Count of args passed into QApplication
+    char ** argv;//       Args passed into QApplication
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(int,char*[],QWidget* parent = nullptr);
     ~MainWindow();
 
     void setupStatusBar(QStatusBar*);
