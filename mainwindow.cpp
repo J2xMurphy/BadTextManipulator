@@ -8,7 +8,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setWindowTitle("Text Manipulator");
     opened_file = "";
-    search_operation = 1;
+    search_term = "";
+    replace_term = "a";
+    search_direction = next_;
+    search_operation = find_;
     ui->setupUi(this);
 
     s_bar = this->findChild<QStatusBar *>("statusbar");
@@ -203,10 +206,11 @@ void MainWindow::on_actionFind_triggered()
     //CREATE INPUT DIALOG FOR A STRING, AND SETS SEARCH DIRECTION TO RIGHT
     QInputDialog * QI = new QInputDialog;
     QString lol = QI->getText(this,"Find...","Find text:",QLineEdit::Normal,search_term);
-    search_operation = 1;
+    search_direction = next_;
 
     //EXECUTES SEARCH
     word_Search(lol);
+    search_operation = find_;
 
     //CLEANUP
     delete QI;
@@ -320,8 +324,13 @@ void MainWindow::on_actionReplace_triggered()
     QObject::connect(accept,SIGNAL(clicked()),&replace_select,SLOT(accept()));
 
     //SHOWS INPUT DIALOG, AND REPLACES WITH GIVEN INPUTS
+    search_term = find->text();
+    replace_term = replace->text();
+    search_operation = repl_;
+    search_direction = next_;
     replace_select.exec();
     do_replace(find->text(),replace->text());
+    s_bar->findChild<QLabel*>("s_info")->setText(find->text()+":"+replace->text());
 
     //CLEANUP
     delete find;
@@ -330,10 +339,10 @@ void MainWindow::on_actionReplace_triggered()
 
 }
 
-void MainWindow::do_replace(QString find, QString replace)
+void MainWindow::do_replace(QString find, QString replace,bool direction)
 {
     //WORD SEARCH HIGHLIGHTS THE WORD, THEN CLEARS THE HIGHLIGHED WORDS, INSERTS REPLACE TEXT, HIGHLIGHTS NEW TEXT
-    if (word_Search(find)){
+    if (word_Search(find,direction)){
         int pos = t_box->textCursor().position();
         t_box->clearFocus();
         t_box->insertPlainText(replace);
@@ -370,13 +379,23 @@ void list_children(QWidget * parent)
 void MainWindow::search_next()
 {
     //BASED ON SAVED INFORMATION, DOES A NORMAL SEARCH
-    word_Search(search_term);
+    if (search_operation == find_){
+        word_Search(search_term);
+    }
+    if (search_operation == repl_){
+        do_replace(search_term,replace_term);
+    }
 }
 
 void MainWindow::search_prev()
 {
     //BASED ON SAVED INFORMATION, DOES A REVERSE SEARCH
-    word_Search(search_term,0);
+    if (search_operation == find_){
+        word_Search(search_term,0);
+    }
+    if (search_operation == repl_){
+        do_replace(search_term,replace_term,0);
+    }
 }
 
 void MainWindow::on_actionUndo_triggered()
@@ -390,7 +409,7 @@ void MainWindow::on_actionUndo_triggered()
 
 void MainWindow::on_actionRedo_triggered()
 {
-    //WHEN THE HOTKEY OR ACTIO IS USED, REDOES
+    //WHEN THE HOTKEY OR ACTION IS USED, REDOES
     std::cout << "Redo triggered" << std::endl;
     t_box->redo();
 }

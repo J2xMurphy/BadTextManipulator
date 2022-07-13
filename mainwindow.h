@@ -26,6 +26,10 @@
 #include <QtNetwork/QNetworkReply>
 #include <QDebug>
 #include <QShortcut>
+#define  prev_ false
+#define  next_ true
+#define  find_ false
+#define  repl_ true
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -39,7 +43,8 @@ class MainWindow : public QMainWindow
     QString opened_file;// Location of file being edited
     QString search_term;// Last used search term in find
     QString replace_term;// Last used word in replace
-    bool search_operation;// Whether find or replace was last used
+    bool search_direction;// Whether find was used for forward or reverse search
+    bool search_operation;// Whether find was used for find or replace operation
     QStatusBar * s_bar;// The status bar at the bottom of the screen
     QTextBrowser * t_box;// The wall of text being edited
 
@@ -55,7 +60,6 @@ private slots:
     //TODO Ideas
     /* Add a statusbar button for next and previous find result
      * Setup the rest of the keyboard shortcuts
-     * Add a help file
      * A tag system is required to make a automatic vaitalbe replacement system
      * Add a variable system that replaces keywords
      * Add a directory puller, scans directory for compatible files  // LATER
@@ -110,6 +114,6 @@ private:
 
     void set_search_term(QString);// SAVES THE SEARCH TERM WHEN FIND IS USED
 
-    void do_replace(QString, QString);// SEARCHES FOR ARG1 AND REPLACES WITH ARG2
+    void do_replace(QString, QString,bool=1);// SEARCHES FOR ARG1 AND REPLACES WITH ARG2
 };
 #endif // MAINWINDOW_H
