@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Text Manipulator");
     opened_file = "";
     search_term = "";
-    replace_term = "a";
+    replace_term = "";
     search_direction = next_;
     search_operation = find_;
     ui->setupUi(this);
@@ -208,6 +208,10 @@ void MainWindow::on_actionFind_triggered()
     QString lol = QI->getText(this,"Find...","Find text:",QLineEdit::Normal,search_term);
     search_direction = next_;
 
+    //SAVES SEARCH TERN AND SHOWS IT IN STATUS BAR
+    search_term = lol;
+    s_bar->findChild<QLabel*>("s_info")->setText(lol);
+
     //EXECUTES SEARCH
     word_Search(lol);
     search_operation = find_;
@@ -221,10 +225,6 @@ bool MainWindow::word_Search(QString word, bool direction)
     //INIT VARIABLES
     QString text;
     int found_index;
-
-    //SAVES SEARCH TERN AND SHOWS IT IN STATUS BAR
-    search_term = word;
-    s_bar->findChild<QLabel*>("s_info")->setText(word);
 
     //SEARCHES LEFT OR RIGHT DEPENDING ON ARG2
     text = t_box->toPlainText();
@@ -324,11 +324,11 @@ void MainWindow::on_actionReplace_triggered()
     QObject::connect(accept,SIGNAL(clicked()),&replace_select,SLOT(accept()));
 
     //SHOWS INPUT DIALOG, AND REPLACES WITH GIVEN INPUTS
+    replace_select.exec();
     search_term = find->text();
     replace_term = replace->text();
     search_operation = repl_;
     search_direction = next_;
-    replace_select.exec();
     do_replace(find->text(),replace->text());
     s_bar->findChild<QLabel*>("s_info")->setText(find->text()+":"+replace->text());
 
