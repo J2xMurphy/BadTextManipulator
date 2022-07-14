@@ -28,6 +28,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::addvar(QString key, QString pair)
+{
+    varlist.insert(key,pair);
+}
+
 //TODO
 void MainWindow::setupShortcuts()
 {
@@ -428,5 +433,51 @@ void MainWindow::on_actionAbout_triggered()
 {
     //THROWS THE ABOUT TEXT INTO A BASIC MESSAGE BOX
     push_message_box(ABOUT_TEXT,"About");
+}
+
+
+void MainWindow::on_actionAdd_Variable_triggered()
+{
+    //CREATES INPUT DIALOG FOR ADD VARIABLE FUNCTION
+    QDialog addvar_dialog(this);
+    QFormLayout v_layout(&addvar_dialog);
+
+    //CREATES INPUT FOR VARIABLE KEY FUNCTION
+    QLineEdit * addvar_key = new QLineEdit;
+    v_layout.addRow(new QLabel(ADDVARKEY_PROMPT),addvar_key);
+
+    //CREATES INPUT FOR VARIABLE PAIR FUNCTION
+    QLineEdit * addvar_pair = new QLineEdit;
+    v_layout.addRow(new QLabel(ADDVARPAIR_PROMPT),addvar_pair);
+
+    //CREATES ENDING BUTTON FOR ADD VARIABLE FUNCTION
+    QPushButton * accept= new QPushButton("Accept");
+    v_layout.addRow(accept);
+    QObject::connect(accept,SIGNAL(clicked()),&addvar_dialog,SLOT(accept()));
+
+    addvar_dialog.exec();
+    addvar(addvar_key->text(),addvar_pair->text());
+
+    //CLEANUP
+    delete accept;
+    delete addvar_key;
+    delete addvar_pair;
+}
+
+
+void MainWindow::on_actionVariables_triggered()
+{
+    QString temp;
+    //Iterates over all variables and adds them to a string for output.
+    for (int i = 0; i < varlist.size(); i++){
+        temp+=varlist.keys()[i]+":"+varlist.values()[i]+"\n";
+    }
+    push_message_box(temp,"Variables");
+}
+
+
+void MainWindow::on_actionExport_triggered()
+{
+    // Choose a tag system ya bum!
 }
 

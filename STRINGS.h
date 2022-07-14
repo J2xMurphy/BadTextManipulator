@@ -7,6 +7,8 @@
 #define FONT_SIZE_PROMPT "Font Size:"
 #define FIND_PROMPT "Find:"
 #define REPLACE_PROMPT "Replace:"
+#define ADDVARKEY_PROMPT "Variable Name:"
+#define ADDVARPAIR_PROMPT "Variable Value:"
 
 #define HELP_TEXT \
 "This is an in development function that is supposed to assist in helping the\n\

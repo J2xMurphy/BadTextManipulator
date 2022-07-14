@@ -25,6 +25,7 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QDebug>
+#include <QHash>
 #include <QShortcut>
 #define  prev_ false
 #define  next_ true
@@ -49,6 +50,7 @@ class MainWindow : public QMainWindow
     QTextBrowser * t_box;// The wall of text being edited
     int argc;//           Count of args passed into QApplication
     char ** argv;//       Args passed into QApplication
+    QHash<QString,QString> varlist;// A hash map of varname and value
 
 public:
     MainWindow(int,char*[],QWidget* parent = nullptr);
@@ -57,6 +59,8 @@ public:
     void setupStatusBar(QStatusBar*);
 
     void setupShortcuts();
+
+    void addvar(QString,QString);
 
 private slots:
     //TODO Ideas
@@ -102,6 +106,12 @@ private slots:
     void on_actionView_Help_triggered();//SHOW HELP DIALOGUE
 
     void on_actionAbout_triggered();//SHOW ABOUT DIALOGUE
+
+    void on_actionAdd_Variable_triggered();//SHOWS NEW VARAIBLE DIALOGUE
+
+    void on_actionVariables_triggered();//TELLS USER ALL VARIABLE KEY-PAIRS
+
+    void on_actionExport_triggered();//SAVE AS WITH PAIRS OVER VARIABLES
 
 private:
     Ui::MainWindow *ui;
