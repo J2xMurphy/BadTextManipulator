@@ -462,17 +462,50 @@ void MainWindow::on_actionAdd_Variable_triggered()
     delete accept;
     delete addvar_key;
     delete addvar_pair;
+    emit varlist_edited();
 }
 
 
 void MainWindow::on_actionVariables_triggered()
 {
-    QString temp;
-    //Iterates over all variables and adds them to a string for output.
-    for (int i = 0; i < varlist.size(); i++){
-        temp+=varlist.keys()[i]+":"+varlist.values()[i]+"\n";
-    }
-    push_message_box(temp,"Variables");
+    //CREATE INPUT DIALOG FOR THE LIST VARIABLE FUNCTION
+    QDialog addvar_dialog(this);
+    QHBoxLayout h_layout(&addvar_dialog);
+
+    //THE LEFTMOST BOX WITH THE LIST OF VARIABLES
+    QListWidget * var_box = new QListWidget;
+    var_box->addItems(varlist.keys());
+    h_layout.addWidget(var_box);
+
+    //THE CENTER BOX WITH FUCTIONS TO ADD AND REMOVE VARIABLE BUTTONS
+    QWidget buttontower;
+    QPushButton * addvar = new QPushButton(VARLISTADD_PROMPT);
+    QPushButton * delvar = new QPushButton(VARLISTDEL_PROMPT);
+    QVBoxLayout v_layout(&buttontower);
+    v_layout.addWidget(addvar);
+    v_layout.addWidget(delvar);
+    h_layout.addWidget(&buttontower);
+
+    //THE RIGHTMOST BOX WITH THE VALUES ASSOCIATED VARIABLES
+    QTextEdit * value_box = new QTextEdit;
+    h_layout.addWidget(value_box);
+
+    //CONNECT THE BOXES
+    QObject::connect(addvar,SIGNAL(clicked()),
+                     this,SLOT(on_actionAdd_Variable_triggered()));
+    QObject::connect(this,SIGNAL(varlist_edited()),
+                     this,SLOT(refresh_vblist()));
+//    QObject::connect(var_box,SIGNAL(currentRowChanged()),
+//                     value_box,SLOT(setPlainText()));
+
+    // ON CLICK
+    addvar_dialog.exec();
+
+    //CLEANUP
+    delete var_box;
+    delete addvar;
+    delete delvar;
+    delete value_box;
 }
 
 
@@ -481,3 +514,11 @@ void MainWindow::on_actionExport_triggered()
     // Choose a tag system ya bum!
 }
 
+void MainWindow::refresh_vblist()
+{
+    std::cout << "Ended edit" << std::endl;
+    /*
+    var_box->clear();
+    var_box->addItems(varlist.keys());*/
+
+}

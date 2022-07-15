@@ -13,6 +13,7 @@
 #include <QFont>
 #include <QDialog>
 #include <QFormLayout>
+#include <QListWidget>
 #include <QLabel>
 #include <QDialogButtonBox>
 #include <QFontComboBox>
@@ -62,6 +63,9 @@ public:
 
     void addvar(QString,QString);
 
+signals:
+    void varlist_edited();
+
 private slots:
     //TODO Ideas
     /* Add a statusbar button for next and previous find result
@@ -73,6 +77,7 @@ private slots:
      * Add a variable based filetype that matches variables to replaced from a list
      * Add a export feature, that applies variable replacement to a saved file.
      * Add a find->replace to variable feature
+     * Add a tag to pull text from internet for export
      * */
 
     void on_actionOpen_triggered();// OPENS A FILE BROWSER TO SELECT A FILE, THEN OPENS IT
@@ -112,6 +117,8 @@ private slots:
     void on_actionVariables_triggered();//TELLS USER ALL VARIABLE KEY-PAIRS
 
     void on_actionExport_triggered();//SAVE AS WITH PAIRS OVER VARIABLES
+
+    void refresh_vblist();//REPOPULATE THE LIST OF VARIABLES
 
 private:
     Ui::MainWindow *ui;

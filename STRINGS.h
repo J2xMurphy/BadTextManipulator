@@ -9,6 +9,8 @@
 #define REPLACE_PROMPT "Replace:"
 #define ADDVARKEY_PROMPT "Variable Name:"
 #define ADDVARPAIR_PROMPT "Variable Value:"
+#define VARLISTADD_PROMPT "Add Varaible..."
+#define VARLISTDEL_PROMPT "Delete Variable"
 
 #define HELP_TEXT \
 "This is an in development function that is supposed to assist in helping the\n\
