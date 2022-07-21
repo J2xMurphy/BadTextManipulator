@@ -8,7 +8,7 @@ MainWindow::MainWindow(int argc_in, char * argv_in[],QWidget *parent)
     , argv(argv_in)
     , ui(new Ui::MainWindow)
 {
-    setWindowTitle("Text Manipulator");
+    setWindowTitle(WINDOW_TITLE);
     opened_file = "";
     search_term = "";
     replace_term = "";
@@ -21,6 +21,13 @@ MainWindow::MainWindow(int argc_in, char * argv_in[],QWidget *parent)
 
     t_box = findChild<QTextBrowser *>("textBox");
     setupShortcuts();
+
+    var_box = NULL;
+    value_box = NULL;
+
+    QObject::connect(this,SIGNAL(varlist_edited()),
+                     this,SLOT(refresh_vblist()));
+    std::cout  << "Ending initialization" << std::endl;
 }
 
 MainWindow::~MainWindow()
@@ -456,6 +463,7 @@ void MainWindow::on_actionAdd_Variable_triggered()
     QObject::connect(accept,SIGNAL(clicked()),&addvar_dialog,SLOT(accept()));
 
     addvar_dialog.exec();
+    if (addvar_key->text() != "")
     addvar(addvar_key->text(),addvar_pair->text());
 
     //CLEANUP
@@ -472,9 +480,9 @@ void MainWindow::on_actionVariables_triggered()
     QDialog addvar_dialog(this);
     QHBoxLayout h_layout(&addvar_dialog);
 
-    //THE LEFTMOST BOX WITH THE LIST OF VARIABLES
-    QListWidget * var_box = new QListWidget;
-    var_box->addItems(varlist.keys());
+    //ADDS THE GLOBAL VARLIST WIDGET TO THE DIALOG BOX
+    var_box = new QListWidget;
+    refresh_vblist();
     h_layout.addWidget(var_box);
 
     //THE CENTER BOX WITH FUCTIONS TO ADD AND REMOVE VARIABLE BUTTONS
@@ -487,25 +495,24 @@ void MainWindow::on_actionVariables_triggered()
     h_layout.addWidget(&buttontower);
 
     //THE RIGHTMOST BOX WITH THE VALUES ASSOCIATED VARIABLES
-    QTextEdit * value_box = new QTextEdit;
+    value_box = new QTextEdit;
     h_layout.addWidget(value_box);
 
     //CONNECT THE BOXES
     QObject::connect(addvar,SIGNAL(clicked()),
                      this,SLOT(on_actionAdd_Variable_triggered()));
-    QObject::connect(this,SIGNAL(varlist_edited()),
-                     this,SLOT(refresh_vblist()));
-//    QObject::connect(var_box,SIGNAL(currentRowChanged()),
-//                     value_box,SLOT(setPlainText()));
+    QObject::connect(var_box,SIGNAL(itemClicked(QListWidgetItem*)),
+                     this,SLOT(populate_valuebox(QListWidgetItem*)));
 
     // ON CLICK
     addvar_dialog.exec();
-
     //CLEANUP
-    delete var_box;
     delete addvar;
     delete delvar;
+    delete var_box;
+    var_box = NULL;
     delete value_box;
+    value_box = NULL;
 }
 
 
@@ -516,9 +523,17 @@ void MainWindow::on_actionExport_triggered()
 
 void MainWindow::refresh_vblist()
 {
-    std::cout << "Ended edit" << std::endl;
-    /*
-    var_box->clear();
-    var_box->addItems(varlist.keys());*/
+    if (var_box == NULL)// var_box is null during normal add variable
+        return;
 
+    //clears and repopulates the list
+    var_box->clear();
+    var_box->addItems(varlist.keys());
+}
+
+void MainWindow::populate_valuebox(QListWidgetItem * var)
+{
+    assert(value_box != NULL);//THIS SHOULD ONLY BE CALLED WHEN value_box IS ALIVE
+    //finds the variable in hashmap and sets it to the text
+    value_box->setText(varlist.value(var->text()));
 }

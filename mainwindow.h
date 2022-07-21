@@ -52,6 +52,8 @@ class MainWindow : public QMainWindow
     int argc;//           Count of args passed into QApplication
     char ** argv;//       Args passed into QApplication
     QHash<QString,QString> varlist;// A hash map of varname and value
+    QListWidget * var_box; // Saves pointer of variables in var list
+    QTextEdit * value_box;// Saves pointer of values in var list
 
 public:
     MainWindow(int,char*[],QWidget* parent = nullptr);
@@ -119,6 +121,8 @@ private slots:
     void on_actionExport_triggered();//SAVE AS WITH PAIRS OVER VARIABLES
 
     void refresh_vblist();//REPOPULATE THE LIST OF VARIABLES
+
+    void populate_valuebox(QListWidgetItem*);//SETS THE VAR VALUE BOX
 
 private:
     Ui::MainWindow *ui;
