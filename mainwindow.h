@@ -70,8 +70,7 @@ signals:
 
 private slots:
     //TODO Ideas
-    /* Add a statusbar button for next and previous find result
-     * Setup the rest of the keyboard shortcuts
+    /* Setup the rest of the keyboard shortcuts
      * A tag system is required to make a automatic vaitalbe replacement system
      * Add a variable system that replaces keywords
      * Add a directory puller, scans directory for compatible files  // LATER
@@ -80,6 +79,7 @@ private slots:
      * Add a export feature, that applies variable replacement to a saved file.
      * Add a find->replace to variable feature
      * Add a tag to pull text from internet for export
+     * Add a dictionary feature to search for a word's meaning
      * */
 
     void on_actionOpen_triggered();// OPENS A FILE BROWSER TO SELECT A FILE, THEN OPENS IT
@@ -124,6 +124,10 @@ private slots:
 
     void populate_valuebox(QListWidgetItem*);//SETS THE VAR VALUE BOX
 
+    void reset_key();//CHANGES THE SELECTED KEY'S VALUE TO THE VALUE BOX
+
+    void remove_key();//REMOVES THE SELECTED KEY FROM THE LIST
+
 private:
     Ui::MainWindow *ui;
 
@@ -138,5 +142,6 @@ private:
     void set_search_term(QString);// SAVES THE SEARCH TERM WHEN FIND IS USED
 
     void do_replace(QString, QString,bool=1);// SEARCHES FOR ARG1 AND REPLACES WITH ARG2
+
 };
 #endif // MAINWINDOW_H

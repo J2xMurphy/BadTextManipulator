@@ -488,9 +488,11 @@ void MainWindow::on_actionVariables_triggered()
     //THE CENTER BOX WITH FUCTIONS TO ADD AND REMOVE VARIABLE BUTTONS
     QWidget buttontower;
     QPushButton * addvar = new QPushButton(VARLISTADD_PROMPT);
+    QPushButton * editvar = new QPushButton (VARLISTEDIT_PROMPT);
     QPushButton * delvar = new QPushButton(VARLISTDEL_PROMPT);
     QVBoxLayout v_layout(&buttontower);
     v_layout.addWidget(addvar);
+    v_layout.addWidget(editvar);
     v_layout.addWidget(delvar);
     h_layout.addWidget(&buttontower);
 
@@ -501,6 +503,10 @@ void MainWindow::on_actionVariables_triggered()
     //CONNECT THE BOXES
     QObject::connect(addvar,SIGNAL(clicked()),
                      this,SLOT(on_actionAdd_Variable_triggered()));
+    QObject::connect(editvar,SIGNAL(clicked()),
+                     this,SLOT(reset_key()));
+    QObject::connect(delvar,SIGNAL(clicked()),
+                     this,SLOT(remove_key()));
     QObject::connect(var_box,SIGNAL(itemClicked(QListWidgetItem*)),
                      this,SLOT(populate_valuebox(QListWidgetItem*)));
 
@@ -536,4 +542,22 @@ void MainWindow::populate_valuebox(QListWidgetItem * var)
     assert(value_box != NULL);//THIS SHOULD ONLY BE CALLED WHEN value_box IS ALIVE
     //finds the variable in hashmap and sets it to the text
     value_box->setText(varlist.value(var->text()));
+}
+
+void MainWindow::reset_key()
+{
+    assert(value_box != NULL);//THIS SHOULD ONLY BE CALLED WHEN value_box IS ALIVE
+    assert(var_box != NULL);//THIS SHOULD ONLY BE CALLED WHEN var_box IS ALIVE
+    //
+    addvar(var_box->currentItem()->text(),value_box->toPlainText());
+}
+
+void MainWindow::remove_key()
+{
+    assert(value_box != NULL);//THIS SHOULD ONLY BE CALLED WHEN value_box IS ALIVE
+    assert(var_box != NULL);//THIS SHOULD ONLY BE CALLED WHEN var_box IS ALIVE
+    //removes currently selected item from the stored list
+    varlist.remove(var_box->currentItem()->text());
+    refresh_vblist();
+    value_box->setText("");
 }
