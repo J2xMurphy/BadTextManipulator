@@ -45,6 +45,7 @@ class MainWindow : public QMainWindow
     QString opened_file;// Location of file being edited
     QString search_term;// Last used search term in find
     QString replace_term;// Last used word in replace
+    QString * export_text;
     bool search_direction;// Whether find was used for forward or reverse search
     bool search_operation;// Whether find was used for find or replace operation
     QStatusBar * s_bar;// The status bar at the bottom of the screen
@@ -65,14 +66,17 @@ public:
 
     void addvar(QString,QString);
 
+    void var_edited_text();
+
 signals:
     void varlist_edited();
+
+    void export_finished(int);
 
 private slots:
     //TODO Ideas
     /* Setup the rest of the keyboard shortcuts
      * A tag system is required to make a automatic vaitalbe replacement system
-     * Add a variable system that replaces keywords
      * Add a directory puller, scans directory for compatible files  // LATER
      * Add a command based filetype that takes actions based on file
      * Add a variable based filetype that matches variables to replaced from a list
@@ -128,6 +132,8 @@ private slots:
 
     void remove_key();//REMOVES THE SELECTED KEY FROM THE LIST
 
+    void export_save();//SAVES THE OUTPUT OF EXPORT
+
 private:
     Ui::MainWindow *ui;
 
@@ -141,7 +147,7 @@ private:
 
     void set_search_term(QString);// SAVES THE SEARCH TERM WHEN FIND IS USED
 
-    void do_replace(QString, QString,bool=1);// SEARCHES FOR ARG1 AND REPLACES WITH ARG2
+    bool do_replace(QString, QString,bool=1);// SEARCHES FOR ARG1 AND REPLACES WITH ARG2
 
 };
 #endif // MAINWINDOW_H

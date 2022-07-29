@@ -61,7 +61,6 @@ void MainWindow::setupShortcuts()
     QShortcut * short_redo = new QShortcut(QKeySequence(tr("Ctrl+Y", "Edit|Redo")),this);
     QObject::connect(short_redo,SIGNAL(activated()),this,SLOT(on_actionRedo_triggered()));
 
-
 //    DISABLED DURING TESTING
 //    QShortcut * short_save = new QShortcut(QKeySequence(tr("Ctrl+S", "Edit|Find...")),this);
 //    QObject::connect(short_save,SIGNAL(activated()),this,SLOT(on_actionFind_triggered()));
@@ -126,7 +125,7 @@ void MainWindow::on_actionSave_triggered()
     //OPENS FILE FROM LAST ACCESSED LOCATION, RETURN IF CANNOT
     QFile file(opened_file);
     if (file.open(QIODevice::WriteOnly)!=1){
-        std::cout << "There was an error saving the file." << std::endl;
+        std::cout << SAVE_ERROR << std::endl;
         return;
     }
 
@@ -353,7 +352,7 @@ void MainWindow::on_actionReplace_triggered()
 
 }
 
-void MainWindow::do_replace(QString find, QString replace,bool direction)
+bool MainWindow::do_replace(QString find, QString replace,bool direction)
 {
     //WORD SEARCH HIGHLIGHTS THE WORD, THEN CLEARS THE HIGHLIGHED WORDS, INSERTS REPLACE TEXT, HIGHLIGHTS NEW TEXT
     if (word_Search(find,direction)){
@@ -366,9 +365,11 @@ void MainWindow::do_replace(QString find, QString replace,bool direction)
         QTC.setPosition(pos-find.length());
         QTC.setPosition(pos-find.length()+replace.length(),QTextCursor::KeepAnchor);
         t_box->setTextCursor(QTC);
+
+        return 1;
     }else{
         //INCASE OF ERROR
-        return;
+        return 0;
     }
 }
 
@@ -525,6 +526,42 @@ void MainWindow::on_actionVariables_triggered()
 void MainWindow::on_actionExport_triggered()
 {
     // Choose a tag system ya bum!
+    QDialog export_dialog(this);
+    export_dialog.setWindowTitle(EXPORT_TITLE);
+    QVBoxLayout h_layout(&export_dialog);
+
+    //ADDS THE PREVIEW TEXT BOX TO THE SCREEN
+    QTextBrowser * preview_text = new QTextBrowser();
+    preview_text->setReadOnly(true);
+    h_layout.addWidget(preview_text);
+
+    //ADDS THE FINALIZE EXPORT AND CANCEL BUTTONS TO THE SCREEN
+    QWidget action_buttons;
+    QHBoxLayout buttons_layout(&action_buttons);
+    QPushButton * cancel_button = new QPushButton(CANCEL_DIALOG);
+    QPushButton * export_button = new QPushButton(EXPORT_DIALOG);
+    buttons_layout.addWidget(cancel_button);
+    buttons_layout.addWidget(export_button);
+    h_layout.addWidget(&action_buttons);
+
+    QObject::connect(cancel_button,SIGNAL(clicked()),
+                     &export_dialog,SLOT(reject()));
+    QObject::connect(export_button,SIGNAL(clicked()),
+                     this,SLOT(export_save()));
+    QObject::connect(this,SIGNAL(export_finished(int)),
+                     &export_dialog,SLOT(done(int)));
+
+    //SETS THE TEXT IN THE PREVIEW BOX
+    var_edited_text();
+    preview_text->setText(*export_text);
+
+    //EXECUTES
+    export_dialog.exec();
+
+    //CLEANUP
+    delete preview_text;
+    delete cancel_button;
+    delete export_button;
 }
 
 void MainWindow::refresh_vblist()
@@ -560,4 +597,29 @@ void MainWindow::remove_key()
     varlist.remove(var_box->currentItem()->text());
     refresh_vblist();
     value_box->setText("");
+}
+
+void MainWindow::var_edited_text()
+{
+    export_text = new QString(t_box->toPlainText());
+    for (QString key : varlist.keys()){
+        export_text->replace(QString(BEGIN_TAG+key+END_TAG),varlist.value(key));
+    }
+}
+
+void MainWindow::export_save()
+{
+    QString export_file = QFileDialog::getSaveFileName(this,EXPORT_DIALOG,"","*.txt");
+
+    QFile file(export_file);
+    if (file.open(QIODevice::WriteOnly)!=1){
+        std::cout << SAVE_ERROR << std::endl;
+        return;
+    }
+
+    //WRITES TO FILE, THEN CLOSES
+    QByteArray text = export_text->toLocal8Bit();
+    file.write(text);
+    file.close();
+    emit export_finished(1);
 }

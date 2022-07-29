@@ -12,6 +12,13 @@
 #define VARLISTADD_PROMPT "Add Varaible..."
 #define VARLISTEDIT_PROMPT "<-Set Variable"
 #define VARLISTDEL_PROMPT "Delete Variable"
+#define CANCEL_DIALOG "Cancel"
+#define EXPORT_DIALOG "Export As..."
+#define EXPORT_TITLE "Export Preview..."
+#define SAVE_ERROR "There was an error saving the file."
+
+#define BEGIN_TAG "<"
+#define END_TAG ">"
 
 #define HELP_TEXT \
 "This is an in development function that is supposed to assist in helping the\n\
