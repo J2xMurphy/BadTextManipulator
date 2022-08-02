@@ -104,6 +104,7 @@
     </property>
     <addaction name="actionSelector"/>
     <addaction name="actionVariables"/>
+    <addaction name="actionDefine_Selction"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -211,6 +212,11 @@
   <action name="actionExport">
    <property name="text">
     <string>Export...</string>
+   </property>
+  </action>
+  <action name="actionDefine_Selction">
+   <property name="text">
+    <string>Define Selction</string>
    </property>
   </action>
  </widget>

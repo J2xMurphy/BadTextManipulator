@@ -35,11 +35,16 @@
 
 #define ABOUT_TEXT \
 "This software is thanks and utilizes QT, and is covered under the GPLv3 license.\n\
- This software and the developer are not responsible for anything that happens as\n\
- a result of using the software, unless you use it and make a large fortune.\n\
- In which case it was all the software and it will accept blame only in acceptance\n\
- of the entire fortune resulting from use, and only if said fortune significantly\n\
- greater than acquired misfortune.\n\
- For legal reasons that is a joke and everything is the fault of the user."
+This software and the developer are not responsible for anything that happens as\n\
+a result of using the software, unless you use it and make a large fortune.\n\
+In which case it was all the software and it will accept blame only in acceptance\n\
+of the entire fortune resulting from use, and only if said fortune significantly\n\
+greater than acquired misfortune.\n\
+For legal reasons that is a joke and everything is the fault of the user.\n\
+\n\
+This software utilizes the 'Free Dictionary API' found at 'https://dictionaryapi.dev/'\n\
+for providing definitions of words. By extension, this software acknowledges the use\n\
+and coverage under the Creative Commons Attribution-ShareAlike 3.0 License. A copy\n\
+can be found at 'https://creativecommons.org/licenses/by-sa/3.0/legalcode'"
 
 #endif // STRINGS_H

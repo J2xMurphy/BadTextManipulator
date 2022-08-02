@@ -1,5 +1,5 @@
 ﻿#include "mainwindow.h"
-#include "./ui_mainwindow.h"
+#include "ui_mainwindow.h"
 
 
 MainWindow::MainWindow(int argc_in, char * argv_in[],QWidget *parent)
@@ -27,12 +27,23 @@ MainWindow::MainWindow(int argc_in, char * argv_in[],QWidget *parent)
 
     QObject::connect(this,SIGNAL(varlist_edited()),
                      this,SLOT(refresh_vblist()));
+
+    args_handler();
     std::cout  << "Ending initialization" << std::endl;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::args_handler()
+{
+    std::cout << argc << std::endl;
+    std::cout << argv[0] << std::endl;
+    if (argc==2){
+        open_file(argv[1]);
+    }
 }
 
 void MainWindow::addvar(QString key, QString pair)
@@ -93,7 +104,11 @@ void MainWindow::on_actionOpen_triggered()
     QString dir;
     dir = QFileDialog::getOpenFileName(this,
         "Open...", "", "Filetypes (*.txt)");
+    open_file(dir);
+}
 
+void MainWindow::open_file(QString dir)
+{
     //OPENS FILE FROM DIALOG, RETURNS IF ERROR
     // FUNCTION SHOULD HAVE RELAVANT RETURN STATEMENT
     QFile file(dir);
@@ -115,7 +130,6 @@ void MainWindow::on_actionOpen_triggered()
     t_box->setPlainText(n);
     update_word_count();
 }
-
 
 void MainWindow::on_actionSave_triggered()
 {
@@ -298,9 +312,19 @@ void MainWindow::on_actionFrom_Url_triggered()
     QInputDialog * QI = new QInputDialog;
     QString url = QI->getText(this,"From Url...","Webtext:",QLineEdit::Normal,"");
 
+    //RUN THE DOWNLOADER AND SET TEXT
+    QString content = downloader(url);
+    t_box->setPlainText(content);
+
+    //CLEANUP
+    delete QI;
+}
+
+QString MainWindow::downloader(QString Url)
+{
     // CREATES A WAITING DOWNLOADER WITH URL
     QNetworkAccessManager manager;
-    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
+    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(Url)));
 
     //LOOP/LOCK TO WAIT FOR RESULTS FROM DOWNLOADER
     QEventLoop wait;
@@ -309,12 +333,10 @@ void MainWindow::on_actionFrom_Url_triggered()
 
     //GETS TEXT FROM PULLED DATA, AND SETS IT TO TEXT BOX
     QString content = response->readAll();
-    t_box->setPlainText(content);
-    //std::cout << content.toStdString() << std::endl;
 
     //CLEANUP
     manager.deleteLater();
-    delete QI;
+    return content;
 }
 
 void MainWindow::on_actionReplace_triggered()
@@ -601,6 +623,7 @@ void MainWindow::remove_key()
 
 void MainWindow::var_edited_text()
 {
+    //Copies text from text box and replaces all vars with values
     export_text = new QString(t_box->toPlainText());
     for (QString key : varlist.keys()){
         export_text->replace(QString(BEGIN_TAG+key+END_TAG),varlist.value(key));
@@ -609,17 +632,28 @@ void MainWindow::var_edited_text()
 
 void MainWindow::export_save()
 {
+    //Makes a file selector and opens selected file
     QString export_file = QFileDialog::getSaveFileName(this,EXPORT_DIALOG,"","*.txt");
-
     QFile file(export_file);
     if (file.open(QIODevice::WriteOnly)!=1){
         std::cout << SAVE_ERROR << std::endl;
         return;
     }
 
-    //WRITES TO FILE, THEN CLOSES
+    //WRITES TO FILE, THEN CLOSES AND SIGNALS UPON COMPLETION
     QByteArray text = export_text->toLocal8Bit();
     file.write(text);
     file.close();
     emit export_finished(1);
 }
+
+void MainWindow::on_actionDefine_Selction_triggered()
+{
+    QString word = "https://api.dictionaryapi.dev/api/v2/entries/en/"+
+                   get_Selected_Text();
+    std::cout << word.toStdString() << std::endl;
+    QString content = downloader(word);
+    push_message_box(content);
+
+}
+

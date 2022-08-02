@@ -68,6 +68,11 @@ public:
 
     void var_edited_text();
 
+    void args_handler();
+
+    void open_file(QString);
+
+    QString downloader(QString);
 signals:
     void varlist_edited();
 
@@ -76,12 +81,10 @@ signals:
 private slots:
     //TODO Ideas
     /* Setup the rest of the keyboard shortcuts
-     * A tag system is required to make a automatic vaitalbe replacement system
      * Add a directory puller, scans directory for compatible files  // LATER
      * Add a command based filetype that takes actions based on file
      * Add a variable based filetype that matches variables to replaced from a list
      * Add a export feature, that applies variable replacement to a saved file.
-     * Add a find->replace to variable feature
      * Add a tag to pull text from internet for export
      * Add a dictionary feature to search for a word's meaning
      * */
@@ -133,6 +136,8 @@ private slots:
     void remove_key();//REMOVES THE SELECTED KEY FROM THE LIST
 
     void export_save();//SAVES THE OUTPUT OF EXPORT
+
+    void on_actionDefine_Selction_triggered();//PULLS DEFINITION OF SELECTED WORD
 
 private:
     Ui::MainWindow *ui;
