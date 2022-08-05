@@ -28,6 +28,10 @@
 #include <QDebug>
 #include <QHash>
 #include <QShortcut>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
 #define  prev_ false
 #define  next_ true
 #define  find_ false
@@ -73,6 +77,7 @@ public:
     void open_file(QString);
 
     QString downloader(QString);
+
 signals:
     void varlist_edited();
 

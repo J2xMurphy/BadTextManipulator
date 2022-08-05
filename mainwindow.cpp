@@ -649,11 +649,38 @@ void MainWindow::export_save()
 
 void MainWindow::on_actionDefine_Selction_triggered()
 {
-    QString word = "https://api.dictionaryapi.dev/api/v2/entries/en/"+
-                   get_Selected_Text();
-    std::cout << word.toStdString() << std::endl;
+//    QString word = "https://api.dictionaryapi.dev/api/v2/entries/en/"+
+//                   get_Selected_Text();
+    QString word = "file:///D:/Users/Joseph/Desktop/Figure%20it%20out.json";
+
+    qWarning() << word;
     QString content = downloader(word);
-    push_message_box(content);
+    QStringList definitions;
+    QStringList examples;
+    int found_index;
+    found_index = content.indexOf("\"meanings\":",0);
+    found_index = content.indexOf("\"definitions\":[",found_index);
+    bool cont = true;
+
+    //Each definition block begins and ends with "{" and "}" respectively
+    //Use those to search and synonyms, antonyms, and examples can be added
+    while(cont){
+    int found_index1 = content.indexOf("{\"definition\":",found_index)+14;
+    int found_index2 = content.indexOf("\",",found_index1)+1;
+    found_index = found_index2;
+    std::cout << found_index1 << ":" << found_index2 << std::endl;
+    if (found_index1<=13){
+        cont = false;
+    }
+    else{
+        definitions.append(content.sliced(found_index1,found_index2-found_index1));
+    }
+    }
+    qWarning() << "Getting to output";
+    for (QString h: definitions){
+        qWarning() << h;
+    }
+    push_message_box(definitions[0]);
 
 }
 
