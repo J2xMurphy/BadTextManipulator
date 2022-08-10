@@ -550,12 +550,12 @@ void MainWindow::on_actionExport_triggered()
     // Choose a tag system ya bum!
     QDialog export_dialog(this);
     export_dialog.setWindowTitle(EXPORT_TITLE);
-    QVBoxLayout h_layout(&export_dialog);
+    QVBoxLayout v_layout(&export_dialog);
 
     //ADDS THE PREVIEW TEXT BOX TO THE SCREEN
     QTextBrowser * preview_text = new QTextBrowser();
     preview_text->setReadOnly(true);
-    h_layout.addWidget(preview_text);
+    v_layout.addWidget(preview_text);
 
     //ADDS THE FINALIZE EXPORT AND CANCEL BUTTONS TO THE SCREEN
     QWidget action_buttons;
@@ -564,7 +564,7 @@ void MainWindow::on_actionExport_triggered()
     QPushButton * export_button = new QPushButton(EXPORT_DIALOG);
     buttons_layout.addWidget(cancel_button);
     buttons_layout.addWidget(export_button);
-    h_layout.addWidget(&action_buttons);
+    v_layout.addWidget(&action_buttons);
 
     QObject::connect(cancel_button,SIGNAL(clicked()),
                      &export_dialog,SLOT(reject()));
@@ -655,8 +655,8 @@ void MainWindow::on_actionDefine_Selction_triggered()
 
     qWarning() << word;
     QString content = downloader(word);
-    QStringList definitions;
-    QStringList examples;
+    QStringList meanings, definitions, synonyms, antonyms, examples;
+
     int found_index;
     found_index = content.indexOf("\"meanings\":",0);
     found_index = content.indexOf("\"definitions\":[",found_index);
@@ -665,22 +665,99 @@ void MainWindow::on_actionDefine_Selction_triggered()
     //Each definition block begins and ends with "{" and "}" respectively
     //Use those to search and synonyms, antonyms, and examples can be added
     while(cont){
-    int found_index1 = content.indexOf("{\"definition\":",found_index)+14;
-    int found_index2 = content.indexOf("\",",found_index1)+1;
-    found_index = found_index2;
-    std::cout << found_index1 << ":" << found_index2 << std::endl;
-    if (found_index1<=13){
-        cont = false;
-    }
-    else{
-        definitions.append(content.sliced(found_index1,found_index2-found_index1));
-    }
+        int found_index1 = content.indexOf("{\"definition\":",found_index)+14;
+        int found_index2 = content.indexOf("}",found_index1)+1;
+        found_index = found_index2;
+        std::cout << found_index1 << ":" << found_index2 << std::endl;
+        if (found_index1<=13){
+            cont = false;
+        }
+        else{
+            meanings.append(content.sliced(found_index1,found_index2-found_index1));
+        }
     }
     qWarning() << "Getting to output";
-    for (QString h: definitions){
-        qWarning() << h;
-    }
-    push_message_box(definitions[0]);
 
+    //Search for parts of every meanings
+    for (QString strip: meanings){
+        qWarning() << strip;
+
+        //Start with definitions
+        int found_index1 = 1;
+        int found_index2 = strip.indexOf("\",",found_index1);
+        qWarning() << found_index1 << ":" << found_index2;
+        if (found_index1 != -1)
+        definitions.append(strip.sliced(found_index1,found_index2-found_index1));
+
+        //Move on to synonyms
+        found_index1 = strip.indexOf("\"synonyms\":[",found_index2)+12;
+        found_index2 = strip.indexOf("]",found_index1);
+        qWarning() << found_index1 << ":" << found_index2;
+        if (found_index1 != -1)
+        synonyms.append(strip.sliced(found_index1,found_index2-found_index1));
+
+        //Move on to antonyms
+        found_index1 = strip.indexOf("\"antonyms\":[",found_index2)+12;
+        found_index2 = strip.indexOf("]",found_index1);
+        qWarning() << found_index1 << ":" << found_index2;
+        if (found_index1 != -1)
+        antonyms.append(strip.sliced(found_index1,found_index2-found_index1));
+
+        //Move on to examples
+        found_index1 = strip.indexOf("\"example\":",found_index2);
+        found_index2 = strip.indexOf("\"",found_index1);
+        qWarning() << found_index1 << ":" << found_index2;
+        if (found_index1 != -1){
+            examples.append(strip.sliced(found_index1,found_index2-found_index1));}
+        else{
+            examples.append("");}
+    }
+    push_message_box(meanings[0]);
+
+    QDialog definition_dialog(this);
+    definition_dialog.setWindowTitle(DEFINE_TITLE);
+    QHBoxLayout h_layout(&definition_dialog);
+
+    QWidget UD_buttons;
+    QVBoxLayout v_layout(&UD_buttons);
+    QPushButton * up = new QPushButton(UP_ARROW);
+    QPushButton * down = new QPushButton(DOWN_ARROW);
+    v_layout.addWidget(up);
+    v_layout.addWidget(down);
+
+    QWidget words;
+    QVBoxLayout text_layout(&words);
+
+    QLabel * d = new QLabel(DEFINITION_LABEL);
+    text_layout.addWidget(d);
+    QLabel * dtext = new QLabel(definitions[0]);
+    text_layout.addWidget(dtext);
+
+    QLabel * s = new QLabel(SYNONYM_LABEL);
+    text_layout.addWidget(s);
+    QLabel * stext = new QLabel(synonyms[0]);
+    text_layout.addWidget(stext);
+
+    QLabel * a = new QLabel(ANTONYM_LABEL);
+    text_layout.addWidget(a);
+    QLabel * atext = new QLabel(antonyms[0]);
+    text_layout.addWidget(atext);
+
+    QLabel * e = new QLabel(EXAMPLE_LABEL);
+    text_layout.addWidget(e);
+    QLabel * etext = new QLabel(examples[0]);
+    text_layout.addWidget(etext);
+
+    h_layout.addWidget(&words);
+    h_layout.addWidget(&UD_buttons);
+
+    definition_dialog.exec();
+    //CLEANUP
+    delete up;
+    delete down;
+    delete dtext;
+    delete stext;
+    delete atext;
+    delete etext;
 }
 
