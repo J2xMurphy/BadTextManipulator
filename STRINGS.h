@@ -23,6 +23,10 @@
 #define ANTONYM_LABEL "Antonyms:"
 #define SYNONYM_LABEL "Synonyms:"
 #define EXAMPLE_LABEL "Example:"
+#define NO_DEFINITION "No definition found."
+#define NO_SYNONYM "No synonym provided."
+#define NO_ANTONYM "No antonym provided."
+#define NO_EXAMPLE "No example provided."
 
 #define BEGIN_TAG "<"
 #define END_TAG ">"

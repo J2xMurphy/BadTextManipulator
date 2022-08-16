@@ -647,11 +647,13 @@ void MainWindow::export_save()
     emit export_finished(1);
 }
 
+// REDO
+// Should really retry doing this, once the JSON formatting is figured out
 void MainWindow::on_actionDefine_Selction_triggered()
 {
-//    QString word = "https://api.dictionaryapi.dev/api/v2/entries/en/"+
-//                   get_Selected_Text();
-    QString word = "file:///D:/Users/Joseph/Desktop/Figure%20it%20out.json";
+    QString word = "https://api.dictionaryapi.dev/api/v2/entries/en/"+
+                   get_Selected_Text();
+//    QString word = "file:///D:/Users/Joseph/Desktop/Figure%20it%20out.json";
 
     qWarning() << word;
     QString content = downloader(word);
@@ -668,7 +670,7 @@ void MainWindow::on_actionDefine_Selction_triggered()
         int found_index1 = content.indexOf("{\"definition\":",found_index)+14;
         int found_index2 = content.indexOf("}",found_index1)+1;
         found_index = found_index2;
-        std::cout << found_index1 << ":" << found_index2 << std::endl;
+//        std::cout << found_index1 << ":" << found_index2 << std::endl;
         if (found_index1<=13){
             cont = false;
         }
@@ -678,41 +680,45 @@ void MainWindow::on_actionDefine_Selction_triggered()
     }
     qWarning() << "Getting to output";
 
+    if (meanings.isEmpty()){
+        push_message_box("No selection found.");
+        return;
+    }
     //Search for parts of every meanings
     for (QString strip: meanings){
-        qWarning() << strip;
+//        qWarning() << strip;
 
         //Start with definitions
         int found_index1 = 1;
         int found_index2 = strip.indexOf("\",",found_index1);
-        qWarning() << found_index1 << ":" << found_index2;
+//        qWarning() << found_index1 << ":" << found_index2;
         if (found_index1 != -1)
         definitions.append(strip.sliced(found_index1,found_index2-found_index1));
 
         //Move on to synonyms
         found_index1 = strip.indexOf("\"synonyms\":[",found_index2)+12;
         found_index2 = strip.indexOf("]",found_index1);
-        qWarning() << found_index1 << ":" << found_index2;
+//        qWarning() << found_index1 << ":" << found_index2;
         if (found_index1 != -1)
         synonyms.append(strip.sliced(found_index1,found_index2-found_index1));
 
         //Move on to antonyms
         found_index1 = strip.indexOf("\"antonyms\":[",found_index2)+12;
         found_index2 = strip.indexOf("]",found_index1);
-        qWarning() << found_index1 << ":" << found_index2;
+//        qWarning() << found_index1 << ":" << found_index2;
         if (found_index1 != -1)
         antonyms.append(strip.sliced(found_index1,found_index2-found_index1));
 
         //Move on to examples
         found_index1 = strip.indexOf("\"example\":",found_index2);
         found_index2 = strip.indexOf("\"",found_index1);
-        qWarning() << found_index1 << ":" << found_index2;
+//        qWarning() << found_index1 << ":" << found_index2;
         if (found_index1 != -1){
             examples.append(strip.sliced(found_index1,found_index2-found_index1));}
         else{
             examples.append("");}
     }
-    push_message_box(meanings[0]);
+    //push_message_box(meanings[0]);
 
     QDialog definition_dialog(this);
     definition_dialog.setWindowTitle(DEFINE_TITLE);
@@ -720,8 +726,8 @@ void MainWindow::on_actionDefine_Selction_triggered()
 
     QWidget UD_buttons;
     QVBoxLayout v_layout(&UD_buttons);
-    QPushButton * up = new QPushButton(UP_ARROW);
-    QPushButton * down = new QPushButton(DOWN_ARROW);
+    dict_button * up = new dict_button(UP_ARROW,0);
+    dict_button * down = new dict_button(DOWN_ARROW,1);
     v_layout.addWidget(up);
     v_layout.addWidget(down);
 
@@ -730,23 +736,38 @@ void MainWindow::on_actionDefine_Selction_triggered()
 
     QLabel * d = new QLabel(DEFINITION_LABEL);
     text_layout.addWidget(d);
-    QLabel * dtext = new QLabel(definitions[0]);
+    QLabel * dtext = new QLabel(
+                (definitions[0].length()>0) ? definitions[0] : NO_DEFINITION);
     text_layout.addWidget(dtext);
+    dtext->setObjectName("def_tex");
 
     QLabel * s = new QLabel(SYNONYM_LABEL);
     text_layout.addWidget(s);
-    QLabel * stext = new QLabel(synonyms[0]);
+    QLabel * stext = new QLabel(
+                (synonyms[0].length()>0) ? synonyms[0] : NO_SYNONYM);
+    stext->setObjectName("syn_tex");
     text_layout.addWidget(stext);
 
     QLabel * a = new QLabel(ANTONYM_LABEL);
     text_layout.addWidget(a);
-    QLabel * atext = new QLabel(antonyms[0]);
+    QLabel * atext = new QLabel(
+                (antonyms[0].length()>0) ? antonyms[0] : NO_ANTONYM);
+    atext->setObjectName("ant_tex");
     text_layout.addWidget(atext);
 
     QLabel * e = new QLabel(EXAMPLE_LABEL);
     text_layout.addWidget(e);
-    QLabel * etext = new QLabel(examples[0]);
+    QLabel * etext = new QLabel(
+                (examples[0].length()>0) ? examples[0] : NO_EXAMPLE);
+    etext->setObjectName("exa_tex");
     text_layout.addWidget(etext);
+
+    dictionary f(0,definitions,synonyms,antonyms,examples,&words);
+
+    QObject::connect(up,SIGNAL(dclicked(bool)),
+                     &f,SLOT(refresh(bool)));
+    QObject::connect(down,SIGNAL(dclicked(bool)),
+                     &f,SLOT(refresh(bool)));
 
     h_layout.addWidget(&words);
     h_layout.addWidget(&UD_buttons);
@@ -755,9 +776,52 @@ void MainWindow::on_actionDefine_Selction_triggered()
     //CLEANUP
     delete up;
     delete down;
+    delete d;
     delete dtext;
+    delete s;
     delete stext;
+    delete a;
     delete atext;
+    delete e;
     delete etext;
 }
 
+dictionary::dictionary(int p,QStringList d,QStringList s,QStringList a,
+                       QStringList e,QWidget* w)
+{
+    page = p;
+    definitions = d;
+    synonyms = s;
+    antonyms = a;
+    examples = e;
+    labels = w;
+};
+
+void dictionary::refresh(bool direction)
+{
+    page += (direction*2)-1;
+    if (page < 0) page = definitions.length()-1;
+    if (page > definitions.length()-1)page=0;
+    qWarning() << "OOF" << page;
+    labels->findChild<QLabel*>("def_tex")->setText((definitions[page].length()>0)
+            ? definitions[page] : NO_DEFINITION);
+    labels->findChild<QLabel*>("syn_tex")->setText((synonyms[page].length()>0)
+            ? synonyms[page] : NO_SYNONYM);
+    labels->findChild<QLabel*>("ant_tex")->setText((antonyms[page].length()>0)
+            ? antonyms[page] : NO_ANTONYM);
+    labels->findChild<QLabel*>("exa_tex")->setText((examples[page].length()>0)
+            ? examples[page] : NO_EXAMPLE);
+}
+
+dict_button::dict_button(QString s,int n)
+{
+    setText(s);
+    next = n;
+    QObject::connect(this,SIGNAL(clicked()),
+                     this,SLOT(ping_dict()));
+}
+
+void dict_button::ping_dict()
+{
+    emit dclicked(next);
+}

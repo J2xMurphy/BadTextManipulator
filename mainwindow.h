@@ -49,7 +49,7 @@ class MainWindow : public QMainWindow
     QString opened_file;// Location of file being edited
     QString search_term;// Last used search term in find
     QString replace_term;// Last used word in replace
-    QString * export_text;
+    QString * export_text;//Text that is text_box post edited and pushed to save
     bool search_direction;// Whether find was used for forward or reverse search
     bool search_operation;// Whether find was used for find or replace operation
     QStatusBar * s_bar;// The status bar at the bottom of the screen
@@ -59,6 +59,8 @@ class MainWindow : public QMainWindow
     QHash<QString,QString> varlist;// A hash map of varname and value
     QListWidget * var_box; // Saves pointer of variables in var list
     QTextEdit * value_box;// Saves pointer of values in var list
+    int definition_page;// The page number of currently displayed definition
+
 
 public:
     MainWindow(int,char*[],QWidget* parent = nullptr);
@@ -158,6 +160,29 @@ private:
     void set_search_term(QString);// SAVES THE SEARCH TERM WHEN FIND IS USED
 
     bool do_replace(QString, QString,bool=1);// SEARCHES FOR ARG1 AND REPLACES WITH ARG2
+
+};
+
+class dict_button : public QPushButton{
+    Q_OBJECT
+    bool next;
+public:
+    dict_button(QString,int);
+signals:
+    void dclicked(bool);
+private slots:
+    void ping_dict();
+};
+
+class dictionary : public QObject{
+Q_OBJECT
+    QStringList definitions, synonyms, antonyms, examples;
+    int page;
+    QWidget* labels;
+public:
+    dictionary(int,QStringList,QStringList,QStringList,QStringList,QWidget*);
+private slots:
+    void refresh(bool);
 
 };
 #endif // MAINWINDOW_H
