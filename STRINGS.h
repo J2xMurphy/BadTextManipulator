@@ -15,7 +15,7 @@
 #define CANCEL_DIALOG "Cancel"
 #define EXPORT_DIALOG "Export As..."
 #define EXPORT_TITLE "Export Preview..."
-#define DEFINE_TITLE "Definition"
+#define DEFINE_TITLE "Definition: "
 #define SAVE_ERROR "There was an error saving the file."
 #define UP_ARROW "↑"
 #define DOWN_ARROW "↓"

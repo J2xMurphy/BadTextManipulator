@@ -214,7 +214,8 @@ void MainWindow::on_actionFont_List_triggered()
 
 void MainWindow::on_actionSelector_triggered()
 {
-    //CREATES A DIALOG AND SHOWS SELECTED TEXT IN A BOX, WAS FOR TESTING LIKELY NOW DEPRICATED
+    //CREATES A DIALOG AND SHOWS SELECTED TEXT IN A BOX,
+    //WAS FOR TESTING LIKELY NOW DEPRICATED
     QDialog show_results(this);
     QFormLayout f_layout(&show_results);
     f_layout.addWidget(new QLabel(get_Selected_Text()));
@@ -376,7 +377,8 @@ void MainWindow::on_actionReplace_triggered()
 
 bool MainWindow::do_replace(QString find, QString replace,bool direction)
 {
-    //WORD SEARCH HIGHLIGHTS THE WORD, THEN CLEARS THE HIGHLIGHED WORDS, INSERTS REPLACE TEXT, HIGHLIGHTS NEW TEXT
+    //WORD SEARCH HIGHLIGHTS THE WORD, THEN CLEARS THE HIGHLIGHED WORDS,
+    //INSERTS REPLACE TEXT, HIGHLIGHTS NEW TEXT
     if (word_Search(find,direction)){
         int pos = t_box->textCursor().position();
         t_box->clearFocus();
@@ -651,8 +653,9 @@ void MainWindow::export_save()
 // Should really retry doing this, once the JSON formatting is figured out
 void MainWindow::on_actionDefine_Selction_triggered()
 {
+    QString saved_word = get_Selected_Text();
     QString word = "https://api.dictionaryapi.dev/api/v2/entries/en/"+
-                   get_Selected_Text();
+                   saved_word;
 //    QString word = "file:///D:/Users/Joseph/Desktop/Figure%20it%20out.json";
 
     qWarning() << word;
@@ -721,14 +724,31 @@ void MainWindow::on_actionDefine_Selction_triggered()
     //push_message_box(meanings[0]);
 
     QDialog definition_dialog(this);
-    definition_dialog.setWindowTitle(DEFINE_TITLE);
+    definition_dialog.setWindowTitle(DEFINE_TITLE+saved_word);
     QHBoxLayout h_layout(&definition_dialog);
 
+//DEFINE THE BUTTONS USED ON THE RIGHT OF DEFINITIONS
     QWidget UD_buttons;
     QVBoxLayout v_layout(&UD_buttons);
     dict_button * up = new dict_button(UP_ARROW,0);
     dict_button * down = new dict_button(DOWN_ARROW,1);
+    up->resize(40,40);
+    up->setMaximumSize(40,40);
+    up->setLayoutDirection(Qt::RightToLeft);
+    down->resize(40,40);
+    down->setMaximumSize(40,40);
+    down->setLayoutDirection(Qt::RightToLeft);
+
+//ADD A QLABEL TO SHOW PAGE NUMBER
+    QLabel * page = new QLabel();
+    page->setObjectName("page_tex");
+    page->setText("1/"+QString::number(meanings.length())+"    ");
+    page->setLayoutDirection(Qt::RightToLeft);
+    page->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+
+//ADD TO RIGHTMOST LAYOUT IN ORDER
     v_layout.addWidget(up);
+    v_layout.addWidget(page);
     v_layout.addWidget(down);
 
     QWidget words;
@@ -762,7 +782,7 @@ void MainWindow::on_actionDefine_Selction_triggered()
     etext->setObjectName("exa_tex");
     text_layout.addWidget(etext);
 
-    dictionary f(0,definitions,synonyms,antonyms,examples,&words);
+    dictionary f(0,definitions,synonyms,antonyms,examples,&definition_dialog);
 
     QObject::connect(up,SIGNAL(dclicked(bool)),
                      &f,SLOT(refresh(bool)));
@@ -776,6 +796,7 @@ void MainWindow::on_actionDefine_Selction_triggered()
     //CLEANUP
     delete up;
     delete down;
+    delete page;
     delete d;
     delete dtext;
     delete s;
@@ -811,6 +832,9 @@ void dictionary::refresh(bool direction)
             ? antonyms[page] : NO_ANTONYM);
     labels->findChild<QLabel*>("exa_tex")->setText((examples[page].length()>0)
             ? examples[page] : NO_EXAMPLE);
+    list_children(labels);
+    labels->findChild<QLabel*>("page_tex")->setText(QString::number(page)+
+            "/"+QString::number(definitions.length())+"    ");
 }
 
 dict_button::dict_button(QString s,int n)

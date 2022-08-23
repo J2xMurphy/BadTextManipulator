@@ -91,9 +91,7 @@ private slots:
      * Add a directory puller, scans directory for compatible files  // LATER
      * Add a command based filetype that takes actions based on file
      * Add a variable based filetype that matches variables to replaced from a list
-     * Add a export feature, that applies variable replacement to a saved file.
      * Add a tag to pull text from internet for export
-     * Add a dictionary feature to search for a word's meaning
      * */
 
     void on_actionOpen_triggered();// OPENS A FILE BROWSER TO SELECT A FILE, THEN OPENS IT
