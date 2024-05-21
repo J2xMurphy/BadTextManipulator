@@ -1,0 +1,9 @@
+# ninja log v5
+2	2159	7380105477373301	TextManipulator_autogen/timestamp	d91e8d1e417358c9
+2	2159	7380105477373301	TextManipulator_autogen/mocs_compilation.cpp	d91e8d1e417358c9
+2	2159	7380105477373301	C:/Users/ImaMiniPC/Documents/GitHub/BadTextManipulator/build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/TextManipulator_autogen/timestamp	d91e8d1e417358c9
+2	2159	7380105477373301	C:/Users/ImaMiniPC/Documents/GitHub/BadTextManipulator/build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/TextManipulator_autogen/mocs_compilation.cpp	d91e8d1e417358c9
+2191	6907	7380105525464350	CMakeFiles/TextManipulator.dir/main.cpp.obj	8d38d80996874a6a
+2181	7012	7380105526934677	CMakeFiles/TextManipulator.dir/TextManipulator_autogen/mocs_compilation.cpp.obj	d3d36ea3bfc53d20
+2185	7752	7380105534328109	CMakeFiles/TextManipulator.dir/mainwindow.cpp.obj	80417c89b38d129f
+7753	8432	7380105541068844	TextManipulator.exe	2503879825589309

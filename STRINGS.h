@@ -45,7 +45,8 @@
 "
 
 #define ABOUT_TEXT \
-"This software is thanks and utilizes QT, and is covered under the GPLv3 license.\n\
+"Crabs will fry\n\
+This software is thanks and utilizes QT, and is covered under the GPLv3 license.\n\
 This software and the developer are not responsible for anything that happens as\n\
 a result of using the software, unless you use it and make a large fortune.\n\
 In which case it was all the software and it will accept blame only in acceptance\n\
