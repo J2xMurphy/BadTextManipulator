@@ -794,17 +794,7 @@ void MainWindow::on_actionDefine_Selction_triggered()
 
     definition_dialog.exec();
     //CLEANUP
-    delete up;
-    delete down;
-    delete page;
-    delete d;
-    delete dtext;
-    delete s;
-    delete stext;
-    delete a;
-    delete atext;
-    delete e;
-    delete etext;
+    delete up,down,page,d,dtext,s,stext,a,atext,e,etext;
 }
 
 dictionary::dictionary(int p,QStringList d,QStringList s,QStringList a,
