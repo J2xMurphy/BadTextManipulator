@@ -7,3 +7,12 @@ build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/CMakeFiles/TextManipulator.dir/mainwin
 build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/CMakeFiles/TextManipulator_autogen.dir/ParseCache.txt
 build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/Testing/Temporary/LastTest.log
 build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/TextManipulator.exe
+build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/.ninja_deps
+build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/.ninja_log
+build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/CMakeFiles/TextManipulator.dir/mainwindow.cpp.obj
+build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/CMakeFiles/TextManipulator_autogen.dir/ParseCache.txt
+build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/Testing/Temporary/LastTest.log
+build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/TextManipulator.exe
+*.exe
+*.log
+build/Desktop_Qt_6_7_0_MinGW_64_bit-Debug/.ninja_deps
